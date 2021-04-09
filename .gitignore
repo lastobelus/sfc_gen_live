@@ -25,3 +25,6 @@ sfc_gen_live-*.tar
 
 # Temporary files for e.g. tests
 /tmp
+
+# The directory where the test apps are generated
+/test_apps/

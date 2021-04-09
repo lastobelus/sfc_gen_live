@@ -1,0 +1,19 @@
+
+sfc.gen.live:
+  ✔ refactor a generated live resource to Surface @done(2021-04-08 22:05)
+  ☐ review and think about choices
+  ☐ extract/abstract form component?
+  ☐ review documentation on creating a hex package
+  ✔ create repo @done(2021-04-08 22:05)
+  ✔ mix new @done(2021-04-08 22:05)
+  ☐ setup hex package
+  ☐ create helloworld sfc.gen.live mix task
+  ☐ include hex package in an app
+  ☐ test helloworld
+  ☐ cp phx.gen.live code into hex package and get it working with as little copied code as possible
+    ☐ i.e., delegate as much as possible from the phx.gen.live task to phoenix
+  ☐ rename to sfc.gen.live
+  ☐ setup the sfc.gen.live templates
+  ☐ refactor phx.gen.live -> sfc.gen.live
+  ☐ tests
+    ☐ copy tests from phx.gen.live and adapt
