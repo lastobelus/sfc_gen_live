@@ -7,12 +7,13 @@ sfc.gen.live:
   ✔ create repo @done(2021-04-08 22:05)
   ✔ mix new @done(2021-04-08 22:05)
   ☐ setup hex package
-  ☐ create helloworld sfc.gen.live mix task
-  ☐ include hex package in an app
-  ☐ test helloworld
-  ☐ cp phx.gen.live code into hex package and get it working with as little copied code as possible
-    ☐ i.e., delegate as much as possible from the phx.gen.live task to phoenix
-  ☐ rename to sfc.gen.live
+  ✔ create helloworld sfc.gen.live mix task @done(2021-04-08 23:21)
+  ✔ include hex package in an app @done(2021-04-08 23:21)
+  ✔ test helloworld @done(2021-04-08 23:21)
+  ✔ cp phx.gen.live code into hex package and get it working with as little copied code as possible @done(2021-04-08 23:21)
+    ✔ i.e., delegate as much as possible from the phx.gen.live task to phoenix @done(2021-04-08 23:22)
+    ☐ works, but need to copy from v1.5.8 instead of master
+  ✔ rename to sfc.gen.live @done(2021-04-08 23:22)
   ☐ setup the sfc.gen.live templates
   ☐ refactor phx.gen.live -> sfc.gen.live
   ☐ tests
