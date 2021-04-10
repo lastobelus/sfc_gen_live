@@ -97,7 +97,7 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
     Gen.Context.prompt_for_code_injection(context)
 
     binding = [context: context, schema: schema, inputs: Gen.Html.inputs(schema)]
-    paths = Mix.Phoenix.generator_paths()
+    paths = Mix.SfcGenLive.generator_paths()
 
     prompt_for_conflicts(context)
 
