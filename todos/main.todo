@@ -16,5 +16,16 @@ sfc.gen.live:
   ✔ rename to sfc.gen.live @done(2021-04-08 23:22)
   ☐ setup the sfc.gen.live templates
   ☐ refactor phx.gen.live -> sfc.gen.live
+    ✔ inject `surface_view` and `surface_component` in `lib/my_app_web.ex` @done(2021-04-09 21:31)
+    ☐ modal component
+    ☐ form component
+    ☐ show
+      ☐ view
+      ☐ template
+    ☐ index
+      ☐ view
+      ☐ template
+
+
   ☐ tests
     ☐ copy tests from phx.gen.live and adapt

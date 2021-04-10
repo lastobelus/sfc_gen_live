@@ -85,6 +85,8 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
   alias Mix.Phoenix.{Context}
   alias Mix.Tasks.Phx.Gen
 
+  import Mix.Generator
+
   @doc false
   def run(args) do
     if Mix.Project.umbrella?() do
@@ -103,7 +105,7 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
 
     context
     |> copy_new_files(binding, paths)
-    |> maybe_inject_helpers()
+    |> maybe_inject_use_macros_and_helpers()
     |> print_shell_instructions()
   end
 
@@ -154,23 +156,37 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
     context
   end
 
-  defp maybe_inject_helpers(%Context{context_app: ctx_app} = context) do
+  defp maybe_inject_use_macros_and_helpers(%Context{context_app: ctx_app} = context) do
     web_prefix = Mix.Phoenix.web_path(ctx_app)
     [lib_prefix, web_dir] = Path.split(web_prefix)
     file_path = Path.join(lib_prefix, "#{web_dir}.ex")
     file = File.read!(file_path)
+
     inject = "import #{inspect(context.web_module)}.LiveHelpers"
 
-    if String.contains?(file, inject) do
-      :ok
-    else
-      do_inject_helpers(context, file, file_path, inject)
-    end
+    file
+    |> inject_eex_before_final_end(
+      file_path,
+      surface_view_template(web_module: context.web_module)
+    )
+    |> inject_eex_before_final_end(
+      file_path,
+      surface_component_template(web_module: context.web_module)
+    )
+    |> maybe_inject_helpers(context, file_path, inject)
 
     context
   end
 
-  defp do_inject_helpers(context, file, file_path, inject) do
+  defp maybe_inject_helpers(file, context, file_path, inject) do
+    if String.contains?(file, inject) do
+      file
+    else
+      do_inject_helpers(file, context, file_path, inject)
+    end
+  end
+
+  defp do_inject_helpers(file, context, file_path, inject) do
     Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
 
     new_file =
@@ -197,6 +213,8 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
       and that both functions import #{inspect(context.web_module)}.LiveHelpers.
       """)
     end
+
+    file
   end
 
   @doc false
@@ -237,4 +255,41 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
       ~s|live "/#{schema.plural}/:id/show/edit", #{inspect(schema.alias)}Live.Show, :edit|
     ]
   end
+
+  defp inject_eex_before_final_end(file, file_path, content_to_inject) do
+    if String.contains?(file, content_to_inject) do
+      file
+    else
+      Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+
+      file
+      |> String.trim_trailing()
+      |> String.trim_trailing("end")
+      |> Kernel.<>(content_to_inject)
+      |> Kernel.<>("end\n")
+    end
+  end
+
+  embed_template(:surface_view, """
+
+    def surface_view do
+      quote do
+        use Surface.LiveView,
+          layout: {<%= @web_module %>.LayoutView, "live.html"}
+
+        unquote(view_helpers())
+      end
+    end
+  """)
+
+  embed_template(:surface_component, """
+
+    def surface_component do
+      quote do
+        use Surface.LiveComponent
+
+        unquote(view_helpers())
+      end
+    end
+  """)
 end
