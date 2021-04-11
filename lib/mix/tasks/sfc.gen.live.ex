@@ -82,7 +82,7 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
   """
   use Mix.Task
 
-  alias Mix.Phoenix.{Context}
+  alias Mix.Phoenix.{Context, Schema}
   alias Mix.Tasks.Phx.Gen
 
   import Mix.Generator
@@ -98,7 +98,7 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
     {context, schema} = Gen.Context.build(args)
     Gen.Context.prompt_for_code_injection(context)
 
-    binding = [context: context, schema: schema, inputs: Gen.Html.inputs(schema)]
+    binding = [context: context, schema: schema, inputs: inputs(schema)]
     paths = Mix.SfcGenLive.generator_paths()
 
     prompt_for_conflicts(context)
@@ -135,15 +135,15 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
       {:eex, "index.ex", Path.join([web_prefix, "live", web_path, live_subdir, "index.ex"])},
       {:eex, "form_component.ex",
        Path.join([web_prefix, "live", web_path, live_subdir, "form_component.ex"])},
-      {:eex, "form_component.html.leex",
-       Path.join([web_prefix, "live", web_path, live_subdir, "form_component.html.leex"])},
+      {:eex, "form_component.sface",
+       Path.join([web_prefix, "live", web_path, live_subdir, "form_component.sface"])},
       {:eex, "index.html.leex",
        Path.join([web_prefix, "live", web_path, live_subdir, "index.html.leex"])},
       {:eex, "show.html.leex",
        Path.join([web_prefix, "live", web_path, live_subdir, "show.html.leex"])},
       {:eex, "live_test.exs",
        Path.join([test_prefix, "live", web_path, "#{schema.singular}_live_test.exs"])},
-      {:new_eex, "modal_component.ex", Path.join([web_prefix, "live", "modal_component.ex"])},
+      {:new_eex, "modal_component.ex", Path.join([web_prefix, "components", "modal.ex"])},
       {:new_eex, "live_helpers.ex", Path.join([web_prefix, "live", "live_helpers.ex"])}
     ]
   end
@@ -244,6 +244,50 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
     end
 
     if context.generate?, do: Gen.Context.print_shell_instructions(context)
+  end
+
+  def inputs(%Schema{} = schema) do
+    Enum.map(schema.attrs, fn
+      {_, {:references, _}} ->
+        {nil, nil, nil}
+
+      {key, :integer} ->
+        {key, "NumberInput", ""}
+
+      {key, :float} ->
+        {key, "NumberInput", ~s( opts={{ step: "any" }})}
+
+      {key, :decimal} ->
+        {key, "NumberInput", ~s( opts={{step: "any" }})}
+
+      {key, :boolean} ->
+        {key, "Checkbox", ""}
+
+      {key, :text} ->
+        {key, "TextArea", ""}
+
+      {key, :date} ->
+        {key, "DateSelect", ""}
+
+      {key, :time} ->
+        {key, "TimeSelect", ""}
+
+      {key, :utc_datetime} ->
+        {key, "DatetimeSelect", ""}
+
+      {key, :naive_datetime} ->
+        {key, "DatetimeSelect", ""}
+
+      {key, {:array, :integer}} ->
+        {key, "MultipleSelect", ~s( options={{ ["1": 1, "2": 2] }}), ""}
+
+      {key, {:array, _}} ->
+        {key, "MultipleSelect", ~s( options={{ ["Option 1": "option1", "Option 2": "option2"] }}),
+         ""}
+
+      {key, _} ->
+        {key, "TextInput", ""}
+    end)
   end
 
   defp live_route_instructions(schema) do

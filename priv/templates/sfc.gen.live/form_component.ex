@@ -1,7 +1,18 @@
 defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web_namespace, schema.alias) %>Live.FormComponent do
-  use <%= inspect context.web_module %>, :live_component
+  use <%= inspect context.web_module %>, :surface_component
 
   alias <%= inspect context.module %>
+  alias Surface.Components.Form
+  alias Surface.Components.Form.{Field, Label, ErrorTag, Submit, <%= for {_key, input, _opts} <- inputs, input do %><%= input %><% end %>}
+
+  @doc "The instance of <%= schema.alias %> being edited/created"
+  prop <%= schema.singular %>, :map, required: true
+
+  @doc "The action (:new / :edit) for the form"
+  prop action, :atom, values: [:new, :edit], required: true
+
+  @doc "The url to redirect to upon a successful submit"
+  prop return_to, :string, required: true
 
   @impl true
   def update(%{<%= schema.singular %>: <%= schema.singular %>} = assigns, socket) do

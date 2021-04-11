@@ -1,19 +1,38 @@
-defmodule <%= inspect context.web_module %>.ModalComponent do
-  use <%= inspect context.web_module %>, :live_component
+defmodule <%= inspect context.web_module %>.Components.Modal do
+  use <%= inspect context.web_module %>, :surface_component
+
+  alias Surface.Components.LivePatch
+  @doc "whether to show a close (X) button"
+  prop show_close, :boolean, default: true
+
+  @doc "url to update to when the modal is closed"
+  prop return_to, :string
+
+  @doc "optional title for the modal"
+  prop title, :string
+
+  @doc "the content of the module"
+  slot default, required: true
+
 
   @impl true
   def render(assigns) do
-    ~L"""
-    <div id="<%%= @id %>" class="phx-modal"
-      phx-capture-click="close"
-      phx-window-keydown="close"
-      phx-key="escape"
-      phx-target="#<%%= @id %>"
-      phx-page-loading>
+    ~H"""
+    <div id={{@id}} class="phx-modal"
+      capture-click="close"
+      window-keydown="close"
+      key="escape"
+      phx-page-loading
+    >
 
       <div class="phx-modal-content">
-        <%%= live_patch raw("&times;"), to: @return_to, class: "phx-modal-close" %>
-        <%%= live_component @socket, @component, @opts %>
+        <LivePatch :if={{@show_close}} to={{@return_to}} class="phx-modal-close">
+          &times
+        </LivePatch>
+        <h2 :if={{@title}} class="text-sm font-display">
+          {{@title}}
+        </h2>
+        <slot/>
       </div>
     </div>
     """

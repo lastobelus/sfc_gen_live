@@ -3,6 +3,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
   alias <%= inspect context.module %>
   alias <%= inspect schema.module %>
+  alias <%= inspect context.web_module %>.Components.Modal
 
   @impl true
   def mount(_params, _session, socket) do
