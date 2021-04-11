@@ -26,6 +26,7 @@ defmodule SfcGenLive.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.5.8"},
+      {:surface, "~> 0.3.0"},
       {:phx_new, "~> 1.5.8", only: [:dev, :test]},
       {:ex_doc, "~> 0.20", only: :docs}
     ]
