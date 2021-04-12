@@ -1,7 +1,11 @@
 defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web_namespace, schema.alias) %>Live.Show do
-  use <%= inspect context.web_module %>, :live_view
+  use <%= inspect context.web_module %>, :surface_view
 
   alias <%= inspect context.module %>
+  alias <%= inspect context.web_module %>.Components.Modal
+  alias <%= inspect context.web_module %>.<%= inspect(schema.alias)%>Live.FormComponent
+
+  alias Surface.Components.{LivePatch, LiveRedirect}
 
   @impl true
   def mount(_params, _session, socket) do

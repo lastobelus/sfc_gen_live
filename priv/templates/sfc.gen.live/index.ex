@@ -1,14 +1,23 @@
 defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web_namespace, schema.alias) %>Live.Index do
-  use <%= inspect context.web_module %>, :live_view
+  use <%= inspect context.web_module %>, :surface_view
 
   alias <%= inspect context.module %>
   alias <%= inspect schema.module %>
+
   alias <%= inspect context.web_module %>.Components.Modal
+  alias <%= inspect context.web_module %>.<%= inspect(schema.alias)%>Live.FormComponent
+
+  alias Surface.Components.{Link, LivePatch, LiveRedirect}
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :<%= schema.collection %>, list_<%= schema.plural %>())}
+    {:ok,
+    socket
+      |> Surface.init()
+      |> assign(:<%= schema.collection %>, list_<%= schema.plural %>())
+    }
   end
+
 
   @impl true
   def handle_params(params, _url, socket) do

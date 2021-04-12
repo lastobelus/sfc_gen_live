@@ -13,5 +13,5 @@
   </Field>
 <% end %>
 
-  <Submit disable-with="Saving…" class={{@submit_class}}>Save</Submit>
+  <Submit class={{@submit_class}} opts={{ phx_disable_with: "Saving…" }}>Save</Submit>
 </Form>
