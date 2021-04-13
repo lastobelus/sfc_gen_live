@@ -22,19 +22,19 @@
   </thead>
   <tbody id="<%= schema.plural %>">
     <tr
-      :for={{<%= schema.singular %> <- @<%= schema.collection %>}}
+      :for={{ <%= schema.singular %> <- @<%= schema.collection %> }}
       id="<%= schema.singular %>-{{<%= schema.singular %>.id}}">
 <%= for {k, _} <- schema.attrs do %>        <td>{{ <%= schema.singular %>.<%= k %> }}</td>
 <% end %>
       <td>
         <span>
-          <LiveRedirect to={{Routes.<%= schema.route_helper %>_show_path(@socket, :show, <%= schema.singular %>)}}>
+          <LiveRedirect to={{ Routes.<%= schema.route_helper %>_show_path(@socket, :show, <%= schema.singular %>) }}>
             Show
           </LiveRedirect>
         </span>
         |
         <span>
-          <LiveRedirect to={{Routes.<%= schema.route_helper %>_index_path(@socket, :edit, <%= schema.singular %>)}}>
+          <LiveRedirect to={{ Routes.<%= schema.route_helper %>_index_path(@socket, :edit, <%= schema.singular %>) }}>
             Edit
           </LiveRedirect>
         </span>
@@ -48,7 +48,7 @@
 </table>
 
 <span>
-  <LivePatch to={{Routes.<%= schema.route_helper %>_index_path(@socket, :new)}}>
+  <LivePatch to={{ Routes.<%= schema.route_helper %>_index_path(@socket, :new) }}>
     New <%= schema.human_singular %>
   </LivePatch>
 </span>

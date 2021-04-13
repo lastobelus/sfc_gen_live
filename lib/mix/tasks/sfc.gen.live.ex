@@ -281,8 +281,7 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
         {key, "MultipleSelect", ~s( options={{ ["1": 1, "2": 2] }}), ""}
 
       {key, {:array, _}} ->
-        {key, "MultipleSelect", ~s( options={{ ["Option 1": "option1", "Option 2": "option2"] }}),
-         ""}
+        {key, "MultipleSelect", ~s( options={{ ["Option 1": "option1", "Option 2": "option2"] }})}
 
       {key, _} ->
         {key, "TextInput", ""}
