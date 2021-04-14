@@ -40,7 +40,7 @@
         </span>
         |
         <span>
-          <Link label="Delete" to="#" click="delete" opts={{ phx_value_id: <%= schema.singular %>.id, data: [confirm: "Are you sure?"] }}/>
+          <Link label="Delete" to="#" click="delete" opts={{ "phx-value-id": <%= schema.singular %>.id, data: [confirm: "Are you sure?"] }}/>
         </span>
       </td>
     </tr>

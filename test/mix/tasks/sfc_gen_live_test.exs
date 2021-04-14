@@ -63,7 +63,7 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
                       deleted_at_usec:naive_datetime_usec
                       alarm:time
                       alarm_usec:time_usec
-                      secret:uuid announcement_date:date alarm:time
+                      secret:uuid announcement_date:date
                       weight:float user_id:references:users))
 
       assert_file("lib/sfc_gen_live/blog/post.ex")
@@ -111,7 +111,7 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
                  ~s(<MultipleSelect options={{ ["Option 1": "option1", "Option 2": "option2"] }}/>)
 
         assert file =~ ~s(<Checkbox/>)
-        assert file =~ ~s(<DatetimeSelect/>)
+        assert file =~ ~s(<DateTimeSelect/>)
         assert file =~ ~s(<DateSelect/>)
         assert file =~ ~s(<TimeSelect/>)
         assert file =~ ~s(<TextInput/>)

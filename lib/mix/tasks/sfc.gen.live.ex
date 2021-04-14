@@ -98,7 +98,13 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
     {context, schema} = Gen.Context.build(args)
     Gen.Context.prompt_for_code_injection(context)
 
-    binding = [context: context, schema: schema, inputs: inputs(schema)]
+    inputs = inputs(schema)
+    form_imports =
+      inputs
+      |> Enum.map(fn({_key, import, _opts}) -> import end)
+      |> Enum.uniq
+      |> Enum.join(", ")
+    binding = [context: context, schema: schema, inputs: inputs, form_imports: form_imports]
     paths = Mix.SfcGenLive.generator_paths()
 
     prompt_for_conflicts(context)
@@ -272,10 +278,10 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
         {key, "TimeSelect", ""}
 
       {key, :utc_datetime} ->
-        {key, "DatetimeSelect", ""}
+        {key, "DateTimeSelect", ""}
 
       {key, :naive_datetime} ->
-        {key, "DatetimeSelect", ""}
+        {key, "DateTimeSelect", ""}
 
       {key, {:array, :integer}} ->
         {key, "MultipleSelect", ~s( options={{ ["1": 1, "2": 2] }}), ""}

@@ -3,7 +3,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
   alias <%= inspect context.module %>
   alias Surface.Components.Form
-  alias Surface.Components.Form.{Field, Label, ErrorTag, Submit, <%= for {_key, input, _opts} <- inputs, input do %><%= input %><% end %>}
+  alias Surface.Components.Form.{Field, Label, ErrorTag, Submit, <%= form_imports %>}
 
   @doc "The instance of <%= schema.alias %> being edited/created"
   prop <%= schema.singular %>, :map, required: true

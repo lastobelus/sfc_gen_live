@@ -1,5 +1,3 @@
-<h2>{{ @title }}</h2>
-
 <Form for={{@changeset}}
   change="validate"
   submit="save"
@@ -13,5 +11,5 @@
   </Field>
 <% end %>
 
-  <Submit class={{@submit_class}} opts={{ phx_disable_with: "Saving…" }}>Save</Submit>
+  <Submit opts={{ phx_disable_with: "Saving…" }}>Save</Submit>
 </Form>
