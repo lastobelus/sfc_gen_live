@@ -10,11 +10,23 @@ by adding `sfc_gen_live` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:sfc_gen_live, "~> 0.1.0"}
+    {:sfc_gen_live, "~> 0.1.4"}
   ]
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/sfc_gen_live](https://hexdocs.pm/sfc_gen_live).
+## Usage
+
+Use the same as you would `phx.gen.live`, for example:
+
+```bash
+mix sfc.gen.live Accounts User users name:string
+```
+
+## Caveats
+
+- still creates `lib/app_web/live/live_helpers.ex`, but it is empty
+- this is a pretty minimal translation to surface, which:
+  - doesn't attempt to extract resource listing table to a component that can be re-used between resources
+  - doesn't extract show / edit / delete buttons to components
+  - ...however, you can copy the templates to `priv/templates/sfc.gen.live` and customize them further.

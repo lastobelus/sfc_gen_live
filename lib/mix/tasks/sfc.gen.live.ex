@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
   @shortdoc "Generates Surface.LiveView, components, and context for a resource"
 
   @moduledoc """
-  Generates Generates Surface.LiveView, components, and context for a resource.
+  Generates Surface.LiveView, components, and context for a resource.
 
       mix sfc.gen.live Accounts User users name:string age:integer
 
@@ -14,10 +14,10 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
   Therefore, if the context already exists, it will be augmented with
   functions for the given resource.
 
-  When this command is run for the first time, a `ModalComponent` and
-  `LiveHelpers` module will be created, along with the resource level
-  LiveViews and components, including a `UserLive.Index`, `UserLive.Show`,
-  and `UserLive.FormComponent` for the new resource.
+  When this command is run for the first time, a `Modal` component will
+  be created in `lib/app_web/components/modal.ex`, along with the resource
+  level LiveViews and components, including a `UserLive.Index`,
+  `UserLive.Show`, and `UserLive.FormComponent` for the new resource.
 
   > Note: A resource may also be split
   > over distinct contexts (such as `Accounts.User` and `Payments.User`).
@@ -42,7 +42,7 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
   A migration file for the repository and test files for the context and
   controller features will also be generated.
 
-  The location of the web files (LiveView's, views, templates, etc) in an
+  The location of the web files (LiveView's, components, views, templates, etc) in an
   umbrella application will vary based on the `:context_app` config located
   in your applications `:generators` configuration. When set, the Phoenix
   generators will generate web files directly in your lib and test folders
