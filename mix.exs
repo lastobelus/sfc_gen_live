@@ -1,7 +1,7 @@
 defmodule SfcGenLive.MixProject do
   use Mix.Project
 
-  @version "0.1.4"
+  @version "0.1.5"
 
   def project do
     [
@@ -36,7 +36,7 @@ defmodule SfcGenLive.MixProject do
     [
       maintainers: ["Michael Johnston"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/lastobelus/surface_gen_live"}
+      links: %{"GitHub" => "https://github.com/lastobelus/sfc_gen_live"}
     ]
   end
 end

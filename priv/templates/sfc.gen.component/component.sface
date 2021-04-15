@@ -1,0 +1,3 @@
+<!-- Component: <%= human %> --><%= for slot <- slots do %>
+
+<slot<%= slot.attr_name %><%= slot.attr_props %>/><% end %>
