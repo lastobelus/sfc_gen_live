@@ -5,13 +5,14 @@ It also contains a generator for generating standalone Surface Components
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `sfc_gen_live` to your list of dependencies in `mix.exs`:
+I haven't put this on Hex yet, so the package can be installed
+by adding `sfc_gen_live` as a git dependency to your list of
+dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:sfc_gen_live, "~> 0.1.4"}
+    {:sfc_gen_live, git: "https://github.com/lastobelus/sfc_gen_live.git"}
   ]
 end
 ```
