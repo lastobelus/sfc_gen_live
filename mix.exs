@@ -25,9 +25,11 @@ defmodule SfcGenLive.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:phoenix, "~> 1.5.8"},
+      {:phoenix, git: "https://github.com/phoenixframework/phoenix.git", override: true},
       {:surface, "~> 0.3.0"},
-      {:phx_new, "~> 1.5.8", only: [:dev, :test]},
+      # {:phx_new, "~> 1.5.8", only: [:dev, :test]},
+      # RADAR: I don't think there is a way to specify this as a git dependency, since phx_new is a directory in phoenixframework/phoenix
+      {:phx_new, path: "~/github/phoenix/installer", only: [:dev, :test]},
       {:ex_doc, "~> 0.20", only: :docs}
     ]
   end

@@ -29,3 +29,16 @@ sfc.gen.live:
 
   ✔ tests @done(2021-04-16 22:48)
     ✔ copy tests from phx.gen.live and adapt @done(2021-04-16 22:48)
+
+  split into v1.5.8 and master:
+    ✔ branch phoenix_1.5.8 @done(2021-04-16 22:50)
+    ✔ branch lib_test_app also @done(2021-04-16 22:58)
+    ✔ update sfc_gen_live@@master to phoenix@master @done(2021-04-16 23:40)
+    had to use a path dependency for phx_new since its source is a directory in phoenix
+    ✔ run tests to see if anything breaks @done(2021-04-16 23:42)
+    the tests in sfc_gen_live using phoenix@master & phx_new@master all pass! But I will go ahead and factor in the changes from master anyway.
+    ✔ generate lib_test_app in phoenix/installer @done(2021-04-16 23:16)
+    ☐ diff phoenix master->v1.5.8 and incorporate changes
+      ☐ template
+      ☐ phx.gen.live.ex
+      ☐ phx_gen_live_test.ex
