@@ -12,20 +12,20 @@ sfc.gen.live:
   ✔ test helloworld @done(2021-04-08 23:21)
   ✔ cp phx.gen.live code into hex package and get it working with as little copied code as possible @done(2021-04-08 23:21)
     ✔ i.e., delegate as much as possible from the phx.gen.live task to phoenix @done(2021-04-08 23:22)
-    ☐ works, but need to copy from v1.5.8 instead of master
+    ✔ works, but need to copy from v1.5.8 instead of master @done(2021-04-16 22:48)
   ✔ rename to sfc.gen.live @done(2021-04-08 23:22)
-  ☐ setup the sfc.gen.live templates
-  ☐ refactor phx.gen.live -> sfc.gen.live
+  ✔ setup the sfc.gen.live templates @done(2021-04-16 22:48)
+  ✔ refactor phx.gen.live -> sfc.gen.live @done(2021-04-16 22:48)
     ✔ inject `surface_view` and `surface_component` in `lib/my_app_web.ex` @done(2021-04-09 21:31)
-    ☐ modal component
-    ☐ form component
-    ☐ show
-      ☐ view
-      ☐ template
-    ☐ index
-      ☐ view
-      ☐ template
+    ✔ modal component @done(2021-04-16 22:48)
+    ✔ form component @done(2021-04-16 22:48)
+    ✔ show @done(2021-04-16 22:48)
+      ✔ view @done(2021-04-16 22:48)
+      ✔ template @done(2021-04-16 22:48)
+    ✔ index @done(2021-04-16 22:48)
+      ✔ view @done(2021-04-16 22:48)
+      ✔ template @done(2021-04-16 22:48)
+✔ @done(2021-04-16 22:48)
 
-
-  ☐ tests
-    ☐ copy tests from phx.gen.live and adapt
+  ✔ tests @done(2021-04-16 22:48)
+    ✔ copy tests from phx.gen.live and adapt @done(2021-04-16 22:48)
