@@ -169,8 +169,6 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
     file_path = Path.join(lib_prefix, "#{web_dir}.ex")
     file = File.read!(file_path)
 
-    inject = "import #{inspect(context.web_module)}.LiveHelpers"
-
     file =
       file
       |> inject_eex_before_final_end(
@@ -242,10 +240,19 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
       {key, :time} ->
         {key, "TimeSelect", ""}
 
+      {key, :time_usec} ->
+        {key, "TimeSelect", ""}
+
       {key, :utc_datetime} ->
         {key, "DateTimeSelect", ""}
 
       {key, :naive_datetime} ->
+        {key, "DateTimeSelect", ""}
+
+      {key, :utc_datetime_usec} ->
+        {key, "DateTimeSelect", ""}
+
+      {key, :naive_datetime_usec} ->
         {key, "DateTimeSelect", ""}
 
       {key, {:array, :integer}} ->
