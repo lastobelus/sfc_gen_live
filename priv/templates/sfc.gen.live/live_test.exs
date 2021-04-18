@@ -11,11 +11,6 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
   @invalid_attrs <%= Mix.Phoenix.to_text for {key, value} <- schema.params.create, into: %{}, do: {key, value |> Mix.Phoenix.Schema.live_form_value() |> Mix.Phoenix.Schema.invalid_form_value()} %>
 
 
-  defp fixture(:<%= schema.singular %>) do
-    {:ok, <%= schema.singular %>} = <%= inspect context.alias %>.create_<%= schema.singular %>(@create_attrs)
-    <%= schema.singular %>
-  end
-
   defp create_<%= schema.singular %>(_) do
     <%= schema.singular %> = <%= schema.singular %>_fixture()
     %{<%= schema.singular %>: <%= schema.singular %>}
