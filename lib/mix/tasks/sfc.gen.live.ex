@@ -171,57 +171,20 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
 
     inject = "import #{inspect(context.web_module)}.LiveHelpers"
 
-    file
-    |> inject_eex_before_final_end(
-      file_path,
-      surface_view_template(web_module: context.web_module)
-    )
-    |> inject_eex_before_final_end(
-      file_path,
-      surface_component_template(web_module: context.web_module)
-    )
-    |> maybe_inject_helpers(context, file_path, inject)
-
-    context
-  end
-
-  defp maybe_inject_helpers(file, context, file_path, inject) do
-    if String.contains?(file, inject) do
+    file =
       file
-    else
-      do_inject_helpers(file, context, file_path, inject)
-    end
-  end
-
-  defp do_inject_helpers(file, context, file_path, inject) do
-    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
-
-    new_file =
-      String.replace(
-        file,
-        "import Phoenix.LiveView.Helpers",
-        "import Phoenix.LiveView.Helpers\n      #{inject}"
+      |> inject_eex_before_final_end(
+        file_path,
+        surface_view_template(web_module: context.web_module)
+      )
+      |> inject_eex_before_final_end(
+        file_path,
+        surface_component_template(web_module: context.web_module)
       )
 
-    if file != new_file do
-      File.write!(file_path, new_file)
-    else
-      Mix.shell().info("""
+    File.write!(file_path, file)
 
-      Could not find Phoenix.LiveView.Helpers imported in #{file_path}.
-
-      This typically happens because your application was not generated
-      with the --live flag:
-
-          mix phx.new my_app --live
-
-      Please make sure LiveView is installed and that #{inspect(context.web_module)}
-      defines both `live_view/0` and `live_component/0` functions,
-      and that both functions import #{inspect(context.web_module)}.LiveHelpers.
-      """)
-    end
-
-    file
+    context
   end
 
   @doc false
