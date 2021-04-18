@@ -34,9 +34,9 @@
         </span>
         |
         <span>
-          <LiveRedirect to={{ Routes.<%= schema.route_helper %>_index_path(@socket, :edit, <%= schema.singular %>) }}>
+          <LivePatch to={{ Routes.<%= schema.route_helper %>_index_path(@socket, :edit, <%= schema.singular %>) }}>
             Edit
-          </LiveRedirect>
+          </LivePatch>
         </span>
         |
         <span>
