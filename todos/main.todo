@@ -42,3 +42,7 @@ sfc.gen.live:
       ✔ template @done(2021-04-18 01:08)
       ✔ phx.gen.live.ex @done(2021-04-18 01:08)
       ✔ phx_gen_live_test.ex @done(2021-04-18 01:08)
+
+phx.gen.live:
+  ☐ report bug with `mix phx.gen.live Blog Post posts title alarm:time`
+  generated test looks for `select name="post[alarm]"` but generated form builds a time control with two selects for hour, minute
