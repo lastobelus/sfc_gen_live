@@ -9,6 +9,18 @@ I haven't put this on Hex yet, so the package can be installed
 by adding `sfc_gen_live` as a git dependency to your list of
 dependencies in `mix.exs`:
 
+### With Phoenix v1.5.8
+
+```elixir
+def deps do
+  [
+    {:sfc_gen_live, git: "https://github.com/lastobelus/sfc_gen_live.git", tag: "v1.5.8"}
+  ]
+end
+```
+
+### With Phoenix from master branch
+
 ```elixir
 def deps do
   [

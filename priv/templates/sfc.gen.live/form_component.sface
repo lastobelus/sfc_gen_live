@@ -11,5 +11,7 @@
   </Field>
 <% end %>
 
+<div>  
   <Submit opts={{ phx_disable_with: "Saving…" }}>Save</Submit>
+</div>
 </Form>

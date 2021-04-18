@@ -38,7 +38,7 @@ sfc.gen.live:
     ✔ run tests to see if anything breaks @done(2021-04-16 23:42)
     the tests in sfc_gen_live using phoenix@master & phx_new@master all pass! But I will go ahead and factor in the changes from master anyway.
     ✔ generate lib_test_app in phoenix/installer @done(2021-04-16 23:16)
-    ☐ diff phoenix master->v1.5.8 and incorporate changes
-      ☐ template
-      ☐ phx.gen.live.ex
-      ☐ phx_gen_live_test.ex
+    ✔ diff phoenix master->v1.5.8 and incorporate changes @done(2021-04-18 01:08)
+      ✔ template @done(2021-04-18 01:08)
+      ✔ phx.gen.live.ex @done(2021-04-18 01:08)
+      ✔ phx_gen_live_test.ex @done(2021-04-18 01:08)

@@ -57,13 +57,14 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
     in_tmp_live_project(config.test, fn ->
       Gen.Live.run(~w(Blog Post posts title slug:unique votes:integer cost:decimal
                       tags:array:text popular:boolean drafted_at:datetime
+                      status:enum:unpublished:published:deleted
                       published_at:utc_datetime
                       published_at_usec:utc_datetime_usec
                       deleted_at:naive_datetime
                       deleted_at_usec:naive_datetime_usec
                       alarm:time
                       alarm_usec:time_usec
-                      secret:uuid announcement_date:date
+                      secret:uuid:redact announcement_date:date
                       weight:float user_id:references:users))
 
       assert_file("lib/sfc_gen_live/blog/post.ex")
@@ -111,6 +112,10 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
                  ~s(<MultipleSelect options={{ ["Option 1": "option1", "Option 2": "option2"] }}/>)
 
         assert file =~ ~s(<Checkbox/>)
+
+        assert file =~
+                 ~s|<Select options={{ Ecto.Enum.values(SfcGenLive.Blog.Post, :status) }} opts={{ prompt: "Choose a value" }} />|
+
         assert file =~ ~s(<DateTimeSelect/>)
         assert file =~ ~s(<DateSelect/>)
         assert file =~ ~s(<TimeSelect/>)
@@ -122,6 +127,7 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
         assert file =~ ~s(<Field name="tags">)
         assert file =~ ~s(<Field name="popular">)
         assert file =~ ~s(<Field name="drafted_at">)
+        assert file =~ ~s(<Field name="status">)
         assert file =~ ~s(<Field name="published_at">)
         assert file =~ ~s(<Field name="deleted_at">)
         assert file =~ ~s(<Field name="announcement_date">)
@@ -129,6 +135,14 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
         assert file =~ ~s(<Field name="secret">)
 
         refute file =~ ~s(<Field name="user_id">)
+      end)
+
+      assert_file("test/sfc_gen_live_web/live/post_live_test.exs", fn file ->
+        assert file =~ ~r"@invalid_attrs.*popular: false"
+        assert file =~ " Routes.post_index_path(conn, :index)"
+        assert file =~ " Routes.post_index_path(conn, :new)"
+        assert file =~ " Routes.post_show_path(conn, :show, post)"
+        assert file =~ " Routes.post_show_path(conn, :edit, post)"
       end)
 
       send(self(), {:mix_shell_input, :yes?, true})
@@ -174,6 +188,36 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
                             live "/comments/:id/show/edit", CommentLive.Show, :edit
                         """
                       ]}
+    end)
+  end
+
+  test "generates into existing context without prompt with --merge-with-existing-context",
+       config do
+    in_tmp_live_project(config.test, fn ->
+      Gen.Live.run(~w(Blog Post posts title))
+
+      assert_file("lib/sfc_gen_live/blog.ex", fn file ->
+        assert file =~ "def get_post!"
+        assert file =~ "def list_posts"
+        assert file =~ "def create_post"
+        assert file =~ "def update_post"
+        assert file =~ "def delete_post"
+        assert file =~ "def change_post"
+      end)
+
+      Gen.Live.run(~w(Blog Comment comments message:string --merge-with-existing-context))
+
+      refute_received {:mix_shell, :info,
+                       ["You are generating into an existing context" <> _notice]}
+
+      assert_file("lib/sfc_gen_live/blog.ex", fn file ->
+        assert file =~ "def get_comment!"
+        assert file =~ "def list_comments"
+        assert file =~ "def create_comment"
+        assert file =~ "def update_comment"
+        assert file =~ "def delete_comment"
+        assert file =~ "def change_comment"
+      end)
     end)
   end
 
@@ -295,6 +339,27 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
     end)
   end
 
+  test "with --no-context does not emit warning when context exists", config do
+    in_tmp_live_project(config.test, fn ->
+      Gen.Live.run(~w(Blog Post posts title:string))
+
+      assert_file("lib/sfc_gen_live/blog.ex")
+      assert_file("lib/sfc_gen_live/blog/post.ex")
+
+      Gen.Live.run(~w(Blog Comment comments title:string --no-context))
+      refute_received {:mix_shell, :info, ["You are generating into an existing context" <> _]}
+
+      assert_file("lib/sfc_gen_live_web/live/comment_live/index.ex")
+      assert_file("lib/sfc_gen_live_web/live/comment_live/show.ex")
+      assert_file("lib/sfc_gen_live_web/live/comment_live/form_component.ex")
+
+      assert_file("lib/sfc_gen_live_web/live/comment_live/index.sface")
+      assert_file("lib/sfc_gen_live_web/live/comment_live/show.sface")
+      assert_file("lib/sfc_gen_live_web/live/comment_live/form_component.sface")
+      assert_file("test/sfc_gen_live_web/live/comment_live_test.exs")
+    end)
+  end
+
   test "with same singular and plural", config do
     in_tmp_live_project(config.test, fn ->
       Gen.Live.run(~w(Tracker Series series value:integer))
@@ -317,6 +382,21 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
       assert_file("lib/sfc_gen_live_web/live/series_live/show.sface")
       assert_file("lib/sfc_gen_live_web/live/series_live/form_component.sface")
       assert_file("test/sfc_gen_live_web/live/series_live_test.exs")
+    end)
+  end
+
+  test "when more than 50 attributes are given", config do
+    in_tmp_live_project(config.test, fn ->
+      long_attribute_list = 0..55 |> Enum.map(&"attribute#{&1}:string") |> Enum.join(" ")
+      Gen.Live.run(~w(Blog Post posts title #{long_attribute_list}))
+
+      assert_file("test/sfc_gen_live/blog_test.exs", fn file ->
+        refute file =~ "...}"
+      end)
+
+      assert_file("test/sfc_gen_live_web/live/post_live_test.exs", fn file ->
+        refute file =~ "...}"
+      end)
     end)
   end
 

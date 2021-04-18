@@ -99,11 +99,13 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
     Gen.Context.prompt_for_code_injection(context)
 
     inputs = inputs(schema)
+
     form_imports =
       inputs
-      |> Enum.map(fn({_key, import, _opts}) -> import end)
-      |> Enum.uniq
+      |> Enum.map(fn {_key, import, _opts} -> import end)
+      |> Enum.uniq()
       |> Enum.join(", ")
+
     binding = [context: context, schema: schema, inputs: inputs, form_imports: form_imports]
     paths = Mix.SfcGenLive.generator_paths()
 
@@ -288,6 +290,10 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
 
       {key, {:array, _}} ->
         {key, "MultipleSelect", ~s( options={{ ["Option 1": "option1", "Option 2": "option2"] }})}
+
+      {key, {:enum, _}} ->
+        {key, "Select",
+         ~s| options={{ Ecto.Enum.values(#{inspect(schema.module)}, #{inspect(key)}) }} opts={{ prompt: "Choose a value" }} />|}
 
       {key, _} ->
         {key, "TextInput", ""}

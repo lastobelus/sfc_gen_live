@@ -27,6 +27,7 @@
     to={{ Routes.<%= schema.route_helper %>_show_path(@socket, :edit, @<%= schema.singular %>) }}
     class="button"/>
 </span>
+|
 <span>
   <LiveRedirect
     label="Back"
