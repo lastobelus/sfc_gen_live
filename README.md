@@ -14,7 +14,7 @@ dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:sfc_gen_live, git: "https://github.com/lastobelus/sfc_gen_live.git", tag: "v1.5.8"}
+    {:sfc_gen_live, git: "https://github.com/lastobelus/sfc_gen_live.git", branch: "phoenix_1.5.8"}
   ]
 end
 ```
