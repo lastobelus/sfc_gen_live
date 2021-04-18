@@ -160,6 +160,11 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
         assert file =~ "defmodule SfcGenLiveWeb.CommentLive.FormComponent"
       end)
 
+      assert_file("lib/sfc_gen_live_web.ex", fn file ->
+        assert file =~ "def surface_view do"
+        assert file =~ "def surface_component do"
+      end)
+
       assert_receive {:mix_shell, :info,
                       [
                         """
