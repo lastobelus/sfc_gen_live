@@ -42,11 +42,12 @@ sfc.gen.live:
       ✔ template @done(2021-04-18 01:08)
       ✔ phx.gen.live.ex @done(2021-04-18 01:08)
       ✔ phx_gen_live_test.ex @done(2021-04-18 01:08)
-    ☐ test in test app
-      ☐ re-setup lib_test_app in phoenix/installer (didn't do --live first time)
-      ☐ run `mix sfc.gen.live Blog Post posts title slug:unique votes:integer cost:decimal tags:array:text popular:boolean drafted_at:datetime status:enum:unpublished:published:deleted published_at:utc_datetime published_at_usec:utc_datetime_usec deleted_at:naive_datetime deleted_at_usec:naive_datetime_usec secret:uuid announcement_date:date weight:float`
-      ☐ make sure generated test runs
-      ☐ run app and inspect generated form
+    ✔ test in test app @done(2021-04-18 04:42)
+      ✔ re-setup lib_test_app in phoenix/installer (didn't do --live first time) @done(2021-04-18 04:42)
+      ✔ run `mix sfc.gen.live Blog Post posts title slug:unique votes:integer cost:decimal tags:array:text popular:boolean drafted_at:datetime status:enum:unpublished:published:deleted published_at:utc_datetime published_at_usec:utc_datetime_usec deleted_at:naive_datetime deleted_at_usec:naive_datetime_usec secret:uuid announcement_date:date weight:float` @done(2021-04-18 04:42)
+      ✔ make sure generated test runs @done(2021-04-18 04:42)
+      tags fails, but it does on phx.gen.live too.
+      ✔ run app and inspect generated form @done(2021-04-18 04:42)
 
   docs:
     ☐ document how to develop
