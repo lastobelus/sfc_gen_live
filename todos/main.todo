@@ -56,6 +56,8 @@ sfc.gen.live:
         `git reset --hard HEAD; git clean -fd; mix deps.get; mix deps.compile; mix ecto.reset; MIX_ENV=test mix ecto.reset`
     ☐ write blog post showing & explaining the generated pieces
 
+sfc.gen.init:
+  
 phx.gen.live:
   ☐ report bug with `mix phx.gen.live Blog Post posts title alarm:time`
   ☐ check if mix sfc.gen.live Blog Post posts title tags:array:text results in failing test OOB

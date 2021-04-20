@@ -1,6 +1,6 @@
 Code.require_file("../../mix_helper.exs", __DIR__)
 
-defmodule Mix.Tasks.Phx.Gen.LiveTest do
+defmodule Mix.Tasks.Sfc.Gen.LiveTest do
   use ExUnit.Case
   import MixHelper
   alias Mix.Tasks.Sfc.Gen

@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
 
   alias Mix.Surface.Component.{Props, Slots}
 
-  @switches [template: :boolean, namespace: :string, slot: [:string, :keep]]
+  @switches [template: :boolean, namespace: :string, slot: [:string, :keep], context_app: :string]
   @default_opts [template: false, namespace: "components"]
   @doc false
   def run(args) do
@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
     slots = slots |> Slots.parse()
 
     assigns =
-      inflect(namespace_parts, name_parts)
+      Mix.SfcGenLive.inflect(namespace_parts, name_parts)
       |> Keyword.put(:props, props)
       |> Keyword.put(:template, opts[:template])
       |> Keyword.put(:slots, slots)
@@ -48,15 +48,14 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
   # def build_component(args) do
   # end
 
-  @spec validate_args!(String.t(), String.t()) :: {[...], [...]}
   defp validate_args!(name, namespace) do
     {namespace_parts, name_parts} = normalized_component_name(name, namespace)
 
     cond do
-      not Enum.all?(name_parts, &valid_module?/1) ->
+      not SfcGenLive.valid_namespace?(name_parts) ->
         raise_with_help("Expected the component, #{inspect(name)}, to be a valid module name")
 
-      not Enum.all?(namespace_parts, &valid_module?/1) ->
+      not SfcGenLive.valid_namespace?(namespace_parts) ->
         raise_with_help(
           "Expected the namespace, #{inspect(namespace)}, to be a valid module name"
         )
@@ -134,30 +133,16 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
     merged_opts =
       @default_opts
       |> Keyword.merge(opts)
-      |> put_context_app(opts[:context_app])
+      |> Mix.SfcGenLive.put_context_app(opts[:context_app])
 
     [name | props] = parsed
     {merged_opts, slots, name, props}
   end
 
-  defp put_context_app(opts, nil) do
-    Keyword.put(opts, :context_app, Mix.Phoenix.otp_app())
-  end
-
-  defp put_context_app(opts, string) do
-    Keyword.put(opts, :context_app, String.to_atom(string))
-  end
-
-  defp split_name(name) do
-    name
-    |> Phoenix.Naming.underscore()
-    |> String.split("/", trim: true)
-  end
-
   @spec normalized_component_name(String.t(), String.t()) :: {[String.t()], [String.t()]}
   defp normalized_component_name(name, namespace) do
-    namespace_parts = split_name(namespace)
-    name_parts = split_name(name) |> strip_namespace(namespace_parts)
+    namespace_parts = Mix.SfcGenLive.split_name(namespace)
+    name_parts = Mix.SfcGenLive.split_name(name) |> strip_namespace(namespace_parts)
     {namespace_parts, name_parts}
   end
 
@@ -169,29 +154,5 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
       false ->
         name_parts
     end
-  end
-
-  defp valid_module?(name) do
-    Phoenix.Naming.camelize(name) =~ ~r/^[A-Z]\w*(\.[A-Z]\w*)*$/
-  end
-
-  defp inflect(namespace_parts, name_parts) do
-    path = Enum.concat(namespace_parts, name_parts) |> Enum.join("/")
-    base = Module.concat([Mix.Phoenix.base()])
-    web_module = base |> Mix.Phoenix.web_module()
-    scoped = path |> Phoenix.Naming.camelize()
-    namespace_module = Module.concat(namespace_parts |> Enum.map(&Phoenix.Naming.camelize/1))
-    module = Module.concat(web_module, scoped)
-    alias = Module.concat([Module.split(module) |> List.last()])
-    human = Enum.map(name_parts, &Phoenix.Naming.humanize/1) |> Enum.join(" ")
-
-    [
-      alias: alias,
-      human: human,
-      web_module: web_module,
-      namespace_module: namespace_module,
-      module: module,
-      path: path
-    ]
   end
 end
