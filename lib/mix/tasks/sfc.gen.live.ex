@@ -164,9 +164,7 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
   end
 
   defp maybe_inject_use_macros_and_helpers(%Context{context_app: ctx_app} = context) do
-    web_prefix = Mix.Phoenix.web_path(ctx_app)
-    [lib_prefix, web_dir] = Path.split(web_prefix)
-    file_path = Path.join(lib_prefix, "#{web_dir}.ex")
+    file_path = SfcGenLive.web_module_poth(ctx_app)
     file = File.read!(file_path)
 
     file =

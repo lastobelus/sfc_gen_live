@@ -57,7 +57,12 @@ sfc.gen.live:
     ☐ write blog post showing & explaining the generated pieces
 
 sfc.gen.init:
-  
+  ✔ factor duplicate code between generators into SfcGenLive @done(2021-04-20 21:48)
+  inject in .formatter.exs
+  inject in dev/config
+  inject in lib/my_app_web.ex#view
+
+
 phx.gen.live:
   ☐ report bug with `mix phx.gen.live Blog Post posts title alarm:time`
   ☐ check if mix sfc.gen.live Blog Post posts title tags:array:text results in failing test OOB

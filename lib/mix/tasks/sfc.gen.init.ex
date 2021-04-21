@@ -15,7 +15,8 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
 
     assigns = Mix.SfcGenLive.inflect(namespace_parts, "counter")
 
-    maybe_include_demo(opts, assigns)
+    assigns
+    |> maybe_include_demo(opts)
   end
 
   defp parse_opts(args) do
@@ -73,7 +74,7 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
     """)
   end
 
-  defp maybe_include_demo(opts, assigns) do
+  defp maybe_include_demo(assigns, opts) do
     if opts[:demo] do
       web_dir = Mix.Phoenix.web_path(opts[:context_app])
       paths = Mix.SfcGenLive.generator_paths()
@@ -94,7 +95,7 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
     end
   end
 
-  def inject_in_formatter_exs do
+  def inject_in_formatter_exs(_assigns) do
     file_path = ".formatter.exs"
     file = File.read!(file_path)
 
@@ -121,5 +122,18 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
 
       File.write!(file_path, file)
     end
+  end
+
+  def inject_app_web_view(ctx_app) do
+    file_path = Mix.SfcGenLive.web_module_path(ctx_app)
+    file = File.read!(file_path)
+
+    Mix.SfcGenLive.insert_in_blocks_matching_fragment(
+      file,
+      "def view do",
+      "import Surface",
+      :quote,
+      :first
+    )
   end
 end
