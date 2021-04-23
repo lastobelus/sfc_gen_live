@@ -13,10 +13,11 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
 
     namespace_parts = validate_namespace!(opts[:namespace])
 
-    assigns = Mix.SfcGenLive.inflect(namespace_parts, "counter")
+    assigns = Mix.SfcGenLive.inflect(namespace_parts, "demo")
 
     assigns
     |> maybe_include_demo(opts)
+    |> inject_in_formatter_exs()
   end
 
   defp parse_opts(args) do
@@ -35,14 +36,16 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
   end
 
   defp validate_namespace!(namespace) do
+    namespace_parts = Mix.SfcGenLive.split_name(namespace)
+
     cond do
-      not Mix.SfcGenLive.valid_namespace?(namespace) ->
+      not Mix.SfcGenLive.valid_namespace?(namespace_parts) ->
         raise_with_help(
           "Expected the namespace, #{inspect(namespace)}, to be a valid module name"
         )
 
       true ->
-        namespace
+        namespace_parts
     end
   end
 
@@ -53,28 +56,29 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
 
     mix sfc.gen.init takes
 
-    - a `--demo` option, default true, that controls whether
+    - a `--[no-]demo` option, default true, that controls whether
     a demo component will be generated in the app.
 
-    - a `--template` boolean option, default true, which specifies whether the
+    - a `--[no-]template` boolean option, default true, which specifies whether the
     demo component template will be in a `.sface` file or in a `~H` sigil in
     the component module
 
     - an optional `--namespace` option that is a relative path
     in `lib/my_app_web` where the demo component will be created. The default
     value is `components`. The `--namespace` option is ignored if
-    `--demo false` is passed.
+    `--no-demo` is passed.
 
 
     For example:
 
          mix sfc.gen.init --namespace my_components
 
-    will create `lib/my_app_web/my_components/counter.ex` and `lib/my_app_web/my_components/counter.sface`
+    will create `lib/my_app_web/my_components/demo.ex` and `lib/my_app_web/my_components/demo.sface`
     """)
   end
 
   defp maybe_include_demo(assigns, opts) do
+    IO.puts("opts[:demo]: #{inspect(opts[:demo])}")
     if opts[:demo] do
       web_dir = Mix.Phoenix.web_path(opts[:context_app])
       paths = Mix.SfcGenLive.generator_paths()
@@ -101,7 +105,7 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
 
     unless Regex.match?(~r/import_deps:[^]]+:surface/, file) do
       Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
-      String.replace(file, ~r/(import_deps:\s*\[[^]]+)\]/, "\\1, :surface]")
+      file = String.replace(file, ~r/(import_deps:\s*\[[^]]+)\]/, "\\1, :surface]")
       File.write!(file_path, file)
     end
   end

@@ -42,6 +42,8 @@ defmodule Mix.SfcGenLive do
     Path.join(lib_prefix, "#{web_dir}.ex")
   end
 
+  def inflect(namespace_parts, name) when is_binary(name), do:
+    inflect(namespace_parts, String.split(name, "/"))
   def inflect(namespace_parts, name_parts) do
     path = Enum.concat(namespace_parts, name_parts) |> Enum.join("/")
     base = Module.concat([Mix.Phoenix.base()])

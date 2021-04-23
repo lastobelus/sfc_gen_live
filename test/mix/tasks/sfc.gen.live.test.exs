@@ -10,25 +10,6 @@ defmodule Mix.Tasks.Sfc.Gen.LiveTest do
     :ok
   end
 
-  defp in_tmp_live_project(test, func) do
-    in_tmp_project(test, fn ->
-      File.mkdir_p!("lib")
-      File.touch!("lib/sfc_gen_live_web.ex")
-      File.touch!("lib/sfc_gen_live.ex")
-      func.()
-    end)
-  end
-
-  defp in_tmp_live_umbrella_project(test, func) do
-    in_tmp_umbrella_project(test, fn ->
-      File.mkdir_p!("sfc_gen_live/lib")
-      File.mkdir_p!("sfc_gen_live_web/lib")
-      File.touch!("sfc_gen_live/lib/sfc_gen_live.ex")
-      File.touch!("sfc_gen_live_web/lib/sfc_gen_live_web.ex")
-      func.()
-    end)
-  end
-
   test "invalid mix arguments", config do
     in_tmp_live_project(config.test, fn ->
       assert_raise Mix.Error, ~r/Expected the context, "blog", to be a valid module name/, fn ->
@@ -66,6 +47,13 @@ defmodule Mix.Tasks.Sfc.Gen.LiveTest do
                       alarm_usec:time_usec
                       secret:uuid:redact announcement_date:date
                       weight:float user_id:references:users))
+
+      IO.puts "----------------------------------------------"
+      IO.puts("File.cwd!(): #{inspect(File.cwd!())}")
+      IO.puts("File.ls!(): #{inspect(File.ls!())}")
+      IO.puts("lib/sfc_gen_live_web.ex: \n#{File.read!("lib/sfc_gen_live_web.ex")}")
+      IO.puts "----------------------------------------------"
+
 
       assert_file("lib/sfc_gen_live/blog/post.ex")
       assert_file("lib/sfc_gen_live/blog.ex")

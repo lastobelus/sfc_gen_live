@@ -32,6 +32,35 @@ defmodule MixHelper do
     end
   end
 
+  def in_generated_phoenix_live_project(test, func) do
+    in_tmp_project(test, fn ->
+      send self(), {:mix_shell_input, :yes?, false}
+      Mix.Tasks.Phx.New.run(~w(live_app --live))
+      File.cd!("live_app", fn ->
+        func.()
+      end)
+    end)
+  end
+
+  def in_tmp_live_project(test, func) do
+    in_tmp_project(test, fn ->
+      File.mkdir_p!("lib")
+      File.touch!("lib/sfc_gen_live_web.ex")
+      File.touch!("lib/sfc_gen_live.ex")
+      func.()
+    end)
+  end
+
+  def in_tmp_live_umbrella_project(test, func) do
+    in_tmp_umbrella_project(test, fn ->
+      File.mkdir_p!("sfc_gen_live/lib")
+      File.mkdir_p!("sfc_gen_live_web/lib")
+      File.touch!("sfc_gen_live/lib/sfc_gen_live.ex")
+      File.touch!("sfc_gen_live_web/lib/sfc_gen_live_web.ex")
+      func.()
+    end)
+  end
+
   def in_tmp_project(which, function) do
     conf_before = Application.get_env(:sfc_gen_live, :generators) || []
     path = Path.join([tmp_path(), random_string(10), to_string(which)])

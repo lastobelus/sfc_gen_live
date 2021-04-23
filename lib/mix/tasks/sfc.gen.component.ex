@@ -52,10 +52,10 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
     {namespace_parts, name_parts} = normalized_component_name(name, namespace)
 
     cond do
-      not SfcGenLive.valid_namespace?(name_parts) ->
+      not Mix.SfcGenLive.valid_namespace?(name_parts) ->
         raise_with_help("Expected the component, #{inspect(name)}, to be a valid module name")
 
-      not SfcGenLive.valid_namespace?(namespace_parts) ->
+      not Mix.SfcGenLive.valid_namespace?(namespace_parts) ->
         raise_with_help(
           "Expected the namespace, #{inspect(namespace)}, to be a valid module name"
         )
@@ -114,13 +114,23 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
     Slots can be specified with `--slot` switches.
     For example:
 
-        mix sfc.gen.component Hero section:string --slot default:required --slot header --slot footer[section]
+        mix sfc.gen.component Hero section:string \
+          --slot default:required \
+          --slot header \
+          --slot footer[section]
 
     will add
 
         slot :default, required: true
         slot :header
         slot :footer, values: [:section]
+
+
+    ## Template or Sigil
+
+    By default, sfc.gen.component creates a `my_component.sface` file.
+    If you pass `--no-template` it will instead include a `render/1` function with
+    the template in a `~H` sigil.
     """)
   end
 

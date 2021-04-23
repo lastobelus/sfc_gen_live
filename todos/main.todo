@@ -58,9 +58,12 @@ sfc.gen.live:
 
 sfc.gen.init:
   ✔ factor duplicate code between generators into SfcGenLive @done(2021-04-20 21:48)
-  inject in .formatter.exs
-  inject in dev/config
-  inject in lib/my_app_web.ex#view
+  ✔ inject in .formatter.exs @done(2021-04-23 02:36)
+  ✔ inject in dev/config @done(2021-04-23 02:36)
+  ✔ inject in lib/my_app_web.ex#view @done(2021-04-23 02:36)
+  add demo component: card with a slot
+    start by making a test and inspecting what currently gets set in the assigns
+  tests
 
 
 phx.gen.live:
