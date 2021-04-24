@@ -34,9 +34,10 @@ defmodule MixHelper do
 
   def in_generated_phoenix_live_project(test, func) do
     in_tmp_project(test, fn ->
-      send self(), {:mix_shell_input, :yes?, false}
-      Mix.Tasks.Phx.New.run(~w(live_app --live))
-      File.cd!("live_app", fn ->
+      send(self(), {:mix_shell_input, :yes?, false})
+      Mix.Tasks.Phx.New.run(~w(sfc_gen_live --live))
+
+      File.cd!("sfc_gen_live", fn ->
         func.()
       end)
     end)

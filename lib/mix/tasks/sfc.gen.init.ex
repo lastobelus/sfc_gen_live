@@ -15,9 +15,10 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
 
     assigns = Mix.SfcGenLive.inflect(namespace_parts, "demo")
 
-    assigns
-    |> maybe_include_demo(opts)
-    |> inject_in_formatter_exs()
+    maybe_include_demo(opts, assigns)
+    inject_in_formatter_exs()
+    inject_live_reload_config(assigns[:web_path])
+    inject_in_app_web_view_macro(assigns[:web_module_path])
   end
 
   defp parse_opts(args) do
@@ -77,18 +78,16 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
     """)
   end
 
-  defp maybe_include_demo(assigns, opts) do
-    IO.puts("opts[:demo]: #{inspect(opts[:demo])}")
+  defp maybe_include_demo(opts, assigns) do
     if opts[:demo] do
-      web_dir = Mix.Phoenix.web_path(opts[:context_app])
       paths = Mix.SfcGenLive.generator_paths()
 
       files = [
-        {:eex, "demo.ex", Path.join(web_dir, "#{assigns[:path]}.ex")}
+        {:eex, "demo.ex", Path.join(assigns[:web_path], "#{assigns[:path]}.ex")}
       ]
 
       template_files = [
-        {:eex, "demo.sface", Path.join(web_dir, "#{assigns[:path]}.sface")}
+        {:eex, "demo.sface", Path.join(assigns[:web_path], "#{assigns[:path]}.sface")}
       ]
 
       Mix.Phoenix.copy_from(paths, "priv/templates/sfc.gen.init", assigns, files)
@@ -99,7 +98,7 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
     end
   end
 
-  def inject_in_formatter_exs(_assigns) do
+  def inject_in_formatter_exs() do
     file_path = ".formatter.exs"
     file = File.read!(file_path)
 
@@ -110,7 +109,7 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
     end
   end
 
-  def inject_live_reload_config(web_dir) do
+  def inject_live_reload_config(web_path) do
     file_path = "config/dev.exs"
     file = File.read!(file_path)
 
@@ -121,23 +120,25 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
         String.replace(
           file,
           ~r/(live_reload: .*\n)( *~r)([^]]+")(\s*)\]/s,
-          "\\1\\2\\3,\n\\2\"#{web_dir}/live/.*(sface)$\"\\4]"
+          "\\1\\2\\3,\n\\2\"#{web_path}/live/.*(sface)$\"\\4]"
         )
 
       File.write!(file_path, file)
     end
   end
 
-  def inject_app_web_view(ctx_app) do
-    file_path = Mix.SfcGenLive.web_module_path(ctx_app)
-    file = File.read!(file_path)
+  def inject_in_app_web_view_macro(web_module_path) do
+    file = File.read!(web_module_path)
 
-    Mix.SfcGenLive.insert_in_blocks_matching_fragment(
-      file,
-      "def view do",
-      "import Surface",
-      :quote,
-      :first
-    )
+    file =
+      Mix.SfcGenLive.insert_in_blocks_matching_fragment(
+        file,
+        "def view do",
+        "import Surface",
+        :quote,
+        :first
+      )
+
+    File.write!(web_module_path, file)
   end
 end

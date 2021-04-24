@@ -36,18 +36,22 @@ defmodule Mix.SfcGenLive do
     |> String.split("/", trim: true)
   end
 
-  def web_module_path(ctx_app) do
-    web_prefix = Mix.Phoenix.web_path(ctx_app)
-    [lib_prefix, web_dir] = Path.split(web_prefix)
-    Path.join(lib_prefix, "#{web_dir}.ex")
-  end
+  def inflect(namespace_parts, name, context_app \\ nil)
 
-  def inflect(namespace_parts, name) when is_binary(name), do:
-    inflect(namespace_parts, String.split(name, "/"))
-  def inflect(namespace_parts, name_parts) do
+  def inflect(namespace_parts, name, context_app) when is_nil(context_app),
+    do: inflect(namespace_parts, name, Mix.Phoenix.context_app())
+
+  def inflect(namespace_parts, name, context_app) when is_binary(name),
+    do: inflect(namespace_parts, String.split(name, "/"), context_app)
+
+  def inflect(namespace_parts, name_parts, context_app) do
     path = Enum.concat(namespace_parts, name_parts) |> Enum.join("/")
+    web_path = Mix.Phoenix.web_path(context_app)
     base = Module.concat([Mix.Phoenix.base()])
     web_module = base |> Mix.Phoenix.web_module()
+    [lib_prefix, web_dir] = Path.split(web_path)
+    web_module_path = Path.join(lib_prefix, "#{web_dir}.ex")
+
     scoped = path |> Phoenix.Naming.camelize()
     namespace_module = Module.concat(namespace_parts |> Enum.map(&Phoenix.Naming.camelize/1))
     module = Module.concat(web_module, scoped)
@@ -58,9 +62,11 @@ defmodule Mix.SfcGenLive do
       alias: alias,
       human: human,
       web_module: web_module,
+      web_module_path: web_module_path,
       namespace_module: namespace_module,
       module: module,
-      path: path
+      path: path,
+      web_path: web_path
     ]
   end
 
@@ -134,7 +140,6 @@ defmodule Mix.SfcGenLive do
         :first ->
           5
       end
-
 
     parts =
       Regex.split(

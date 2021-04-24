@@ -24,16 +24,14 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
       |> Keyword.put(:template, opts[:template])
       |> Keyword.put(:slots, slots)
 
-    web_dir = Mix.Phoenix.web_path(opts[:context_app])
-
     paths = Mix.SfcGenLive.generator_paths()
 
     files = [
-      {:eex, "component.ex", Path.join(web_dir, "#{assigns[:path]}.ex")}
+      {:eex, "component.ex", Path.join(assigns[:web_path], "#{assigns[:path]}.ex")}
     ]
 
     template_files = [
-      {:eex, "component.sface", Path.join(web_dir, "#{assigns[:path]}.sface")}
+      {:eex, "component.sface", Path.join(assigns[:web_path], "#{assigns[:path]}.sface")}
     ]
 
     Mix.Phoenix.copy_from(paths, "priv/templates/sfc.gen.component", assigns, files)
