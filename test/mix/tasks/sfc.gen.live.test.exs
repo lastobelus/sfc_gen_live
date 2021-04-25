@@ -1,6 +1,6 @@
 Code.require_file("../../mix_helper.exs", __DIR__)
 
-defmodule Mix.Tasks.Phx.Gen.LiveTest do
+defmodule Mix.Tasks.Sfc.Gen.LiveTest do
   use ExUnit.Case
   import MixHelper
   alias Mix.Tasks.Sfc.Gen
@@ -8,25 +8,6 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
   setup do
     Mix.Task.clear()
     :ok
-  end
-
-  defp in_tmp_live_project(test, func) do
-    in_tmp_project(test, fn ->
-      File.mkdir_p!("lib")
-      File.touch!("lib/sfc_gen_live_web.ex")
-      File.touch!("lib/sfc_gen_live.ex")
-      func.()
-    end)
-  end
-
-  defp in_tmp_live_umbrella_project(test, func) do
-    in_tmp_umbrella_project(test, fn ->
-      File.mkdir_p!("sfc_gen_live/lib")
-      File.mkdir_p!("sfc_gen_live_web/lib")
-      File.touch!("sfc_gen_live/lib/sfc_gen_live.ex")
-      File.touch!("sfc_gen_live_web/lib/sfc_gen_live_web.ex")
-      func.()
-    end)
   end
 
   test "invalid mix arguments", config do
@@ -66,6 +47,13 @@ defmodule Mix.Tasks.Phx.Gen.LiveTest do
                       alarm_usec:time_usec
                       secret:uuid:redact announcement_date:date
                       weight:float user_id:references:users))
+
+      IO.puts "----------------------------------------------"
+      IO.puts("File.cwd!(): #{inspect(File.cwd!())}")
+      IO.puts("File.ls!(): #{inspect(File.ls!())}")
+      IO.puts("lib/sfc_gen_live_web.ex: \n#{File.read!("lib/sfc_gen_live_web.ex")}")
+      IO.puts "----------------------------------------------"
+
 
       assert_file("lib/sfc_gen_live/blog/post.ex")
       assert_file("lib/sfc_gen_live/blog.ex")
