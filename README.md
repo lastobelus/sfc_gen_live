@@ -31,6 +31,14 @@ end
 
 ## Usage
 
+### `sfc.gen.init`
+
+Sets up a project (that was generated with `mix phx.new --live`) to use Surface.
+Optionally adds a demo card component if the option `--demo` is passed.
+By default this will be a two-file component (`card.ex` and `card.sface`).
+If you pass `--no-template` it will be generated as a single file component
+with the template in a render function and `~H` sigil.
+
 ### `sfc.gen.live`
 
 Use the same as you would `phx.gen.live`, for example:
