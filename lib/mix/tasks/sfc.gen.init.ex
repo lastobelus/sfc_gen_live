@@ -13,12 +13,13 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
 
     namespace_parts = validate_namespace!(opts[:namespace])
 
-    assigns = Mix.SfcGenLive.inflect(namespace_parts, "demo")
+    assigns = Mix.SfcGenLive.inflect(namespace_parts, "card") ++ opts
 
-    maybe_include_demo(opts, assigns)
     inject_in_formatter_exs()
     inject_live_reload_config(assigns[:web_path])
     inject_in_app_web_view_macro(assigns[:web_module_path])
+
+    maybe_include_demo(opts, assigns)
   end
 
   defp parse_opts(args) do
@@ -65,7 +66,7 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
     the component module
 
     - an optional `--namespace` option that is a relative path
-    in `lib/my_app_web` where the demo component will be created. The default
+    in `lib/my_app_web` where the demo card component will be created. The default
     value is `components`. The `--namespace` option is ignored if
     `--no-demo` is passed.
 
@@ -74,7 +75,7 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
 
          mix sfc.gen.init --namespace my_components
 
-    will create `lib/my_app_web/my_components/demo.ex` and `lib/my_app_web/my_components/demo.sface`
+    will create `lib/my_app_web/my_components/card.ex` and `lib/my_app_web/my_components/card.sface`
     """)
   end
 
@@ -83,11 +84,11 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
       paths = Mix.SfcGenLive.generator_paths()
 
       files = [
-        {:eex, "demo.ex", Path.join(assigns[:web_path], "#{assigns[:path]}.ex")}
+        {:eex, "card.ex", Path.join(assigns[:web_path], "#{assigns[:path]}.ex")}
       ]
 
       template_files = [
-        {:eex, "demo.sface", Path.join(assigns[:web_path], "#{assigns[:path]}.sface")}
+        {:eex, "card.sface", Path.join(assigns[:web_path], "#{assigns[:path]}.sface")}
       ]
 
       Mix.Phoenix.copy_from(paths, "priv/templates/sfc.gen.init", assigns, files)

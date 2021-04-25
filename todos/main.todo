@@ -61,10 +61,9 @@ sfc.gen.init:
   ✔ inject in .formatter.exs @done(2021-04-23 02:36)
   ✔ inject in dev/config @done(2021-04-23 02:36)
   ✔ inject in lib/my_app_web.ex#view @done(2021-04-23 02:36)
-  add demo component: card with a slot
-    start by making a test and inspecting what currently gets set in the assigns
-  tests
-
+  ✔ add demo component: card with a slot @done(2021-04-24 22:10)
+    ✔ start by making a test and inspecting what currently gets set in the assigns @done(2021-04-24 22:10)
+  ✔ tests @done(2021-04-24 22:10)
 
 phx.gen.live:
   ☐ report bug with `mix phx.gen.live Blog Post posts title alarm:time`

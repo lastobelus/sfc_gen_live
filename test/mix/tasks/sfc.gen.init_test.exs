@@ -37,6 +37,40 @@ defmodule Mix.Tasks.Sfc.Gen.InitTest do
     end)
   end
 
+  test "creates single-file card component with --demo, --no-template", config do
+    in_generated_phoenix_live_project(config.test, fn ->
+      Gen.Init.run(~w(
+        --demo
+        --no-template
+      ))
+
+      assert_file("lib/sfc_gen_live_web/components/card.ex", fn file ->
+        assert file =~ "defmodule SfcGenLiveWeb.Components.Card do"
+        assert file =~ ~S(<div class={{ @class }}>)
+      end)
+
+      refute_file("lib/sfc_gen_live_web/components/card.sface")
+    end)
+  end
+
+  test "creates card component with template file with --demo, --template", config do
+    in_generated_phoenix_live_project(config.test, fn ->
+      Gen.Init.run(~w(
+        --demo
+        --template
+      ))
+
+      assert_file("lib/sfc_gen_live_web/components/card.ex", fn file ->
+        assert file =~ "defmodule SfcGenLiveWeb.Components.Card do"
+        refute file =~ ~S(<div class={{ @class }}>)
+      end)
+
+      assert_file("lib/sfc_gen_live_web/components/card.sface", fn file ->
+        assert file =~ ~S(<div class={{ @class }}>)
+      end)
+    end)
+  end
+
   defp inspect_app_dir(also \\ nil) do
     IO.puts("----------------------------------------------")
     IO.puts("File.cwd!(): #{inspect(File.cwd!())}")
