@@ -29,3 +29,46 @@ sfc.gen.live:
 
   ✔ tests @done(2021-04-16 22:48)
     ✔ copy tests from phx.gen.live and adapt @done(2021-04-16 22:48)
+
+  split into v1.5.8 and master:
+    ✔ branch phoenix_1.5.8 @done(2021-04-16 22:50)
+    ✔ branch lib_test_app also @done(2021-04-16 22:58)
+    ✔ update sfc_gen_live@@master to phoenix@master @done(2021-04-16 23:40)
+    had to use a path dependency for phx_new since its source is a directory in phoenix
+    ✔ run tests to see if anything breaks @done(2021-04-16 23:42)
+    the tests in sfc_gen_live using phoenix@master & phx_new@master all pass! But I will go ahead and factor in the changes from master anyway.
+    ✔ generate lib_test_app in phoenix/installer @done(2021-04-16 23:16)
+    ✔ diff phoenix master->v1.5.8 and incorporate changes @done(2021-04-18 01:08)
+      ✔ template @done(2021-04-18 01:08)
+      ✔ phx.gen.live.ex @done(2021-04-18 01:08)
+      ✔ phx_gen_live_test.ex @done(2021-04-18 01:08)
+    ✔ test in test app @done(2021-04-18 04:42)
+      ✔ re-setup lib_test_app in phoenix/installer (didn't do --live first time) @done(2021-04-18 04:42)
+      ✔ run `mix sfc.gen.live Blog Post posts title slug:unique votes:integer cost:decimal tags:array:text popular:boolean drafted_at:datetime status:enum:unpublished:published:deleted published_at:utc_datetime published_at_usec:utc_datetime_usec deleted_at:naive_datetime deleted_at_usec:naive_datetime_usec secret:uuid announcement_date:date weight:float` @done(2021-04-18 04:42)
+      ✔ make sure generated test runs @done(2021-04-18 04:42)
+      tags fails, but it does on phx.gen.live too.
+      ✔ run app and inspect generated form @done(2021-04-18 04:42)
+
+  docs:
+    ☐ document how to develop
+      setup test app in phoenix/installer
+      reset test app:
+        `git reset --hard HEAD; git clean -fd; mix deps.get; mix deps.compile; mix ecto.reset; MIX_ENV=test mix ecto.reset`
+    ☐ write blog post showing & explaining the generated pieces
+
+sfc.gen.init:
+  ✔ factor duplicate code between generators into SfcGenLive @done(2021-04-20 21:48)
+  ✔ inject in .formatter.exs @done(2021-04-23 02:36)
+  ✔ inject in dev/config @done(2021-04-23 02:36)
+  ✔ inject in lib/my_app_web.ex#view @done(2021-04-23 02:36)
+  ✔ add demo component: card with a slot @done(2021-04-24 22:10)
+    ✔ start by making a test and inspecting what currently gets set in the assigns @done(2021-04-24 22:10)
+  ✔ tests @done(2021-04-24 22:10)
+
+phx.gen.live:
+  ☐ report bug with `mix phx.gen.live Blog Post posts title alarm:time`
+  ☐ check if mix sfc.gen.live Blog Post posts title tags:array:text results in failing test OOB
+  generated test looks for `select name="post[alarm]"` but generated form builds a time control with two selects for hour, minute
+
+
+

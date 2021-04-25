@@ -1,0 +1,15 @@
+<div class={{ @class }}>
+  <header class={{ @header_class }}>
+    <p class="card-header-title">
+      <slot name="header"/>
+    </p>
+  </header>
+  <div class="card-content">
+    <div class="content">
+      <slot/>
+    </div>
+  </div>
+  <footer class={{ @footer_class}}>
+    <slot name="footer"/>
+  </footer>
+</div>

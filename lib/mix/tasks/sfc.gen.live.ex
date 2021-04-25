@@ -164,9 +164,7 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
   end
 
   defp maybe_inject_use_macros_and_helpers(%Context{context_app: ctx_app} = context) do
-    web_prefix = Mix.Phoenix.web_path(ctx_app)
-    [lib_prefix, web_dir] = Path.split(web_prefix)
-    file_path = Path.join(lib_prefix, "#{web_dir}.ex")
+    file_path = Mix.SfcGenLive.web_module_path(ctx_app)
     file = File.read!(file_path)
 
     file =
@@ -260,6 +258,10 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
 
       {key, {:array, _}} ->
         {key, "MultipleSelect", ~s( options={{ ["Option 1": "option1", "Option 2": "option2"] }})}
+
+      {key, {:enum, _}} ->
+        {key, "Select",
+         ~s| options={{ Ecto.Enum.values(#{inspect(schema.module)}, #{inspect(key)}) }} opts={{ prompt: "Choose a value" }} />|}
 
       {key, _} ->
         {key, "TextInput", ""}
