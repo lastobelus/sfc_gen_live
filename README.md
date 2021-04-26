@@ -9,6 +9,10 @@ I haven't put this on Hex yet, so the package can be installed
 by adding `sfc_gen_live` as a git dependency to your list of
 dependencies in `mix.exs`:
 
+## Upstream
+
+This may be merged with [Surface](https://github.com/surface-ui/surface) at some pont; there is discussion on [this issue](https://github.com/surface-ui/surface/issues/333).
+
 ### With Phoenix v1.5.8
 
 ```elixir
