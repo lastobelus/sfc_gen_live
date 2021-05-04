@@ -3,6 +3,18 @@
 `sfc.gen.live` is a translation of `phx.gen.live` to [Surface](https://surface-ui.org).
 It also contains a generator for generating standalone Surface Components
 
+## `surface-next` branch (this branch)
+
+This branch is being developed in parallel with the [surface-next branch](https://github.com/surface-ui/surface/tree/surface-next) of surface, and targets the new syntax.
+
+In this branch we are working on a new generator:
+
+```bash
+mix sfc.gen.design path/to/sface/file
+```
+
+which takes a `.sface` file and produces a series of `sfc.gen.component` calls that build out a walking skeleton of all the components in that file.
+
 ## Installation
 
 I haven't put this on Hex yet, so the package can be installed
