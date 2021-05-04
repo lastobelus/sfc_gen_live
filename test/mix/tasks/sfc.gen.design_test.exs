@@ -2,7 +2,7 @@ Code.require_file("../../mix_helper.exs", __DIR__)
 
 defmodule Mix.Tasks.Sfc.Gen.DesignTest do
   @moduledoc false
-  
+
   use ExUnit.Case
   import MixHelper
   import ExUnit.CaptureIO
@@ -18,14 +18,12 @@ defmodule Mix.Tasks.Sfc.Gen.DesignTest do
     test "it prints the version", config do
       in_tmp_project(config.test, fn ->
         assert capture_io(fn ->
-          Gen.Design.run(~w(-v))
-        end) =~ "Sfc.Gen.Design  v0.0.1"
+                 Gen.Design.run(~w(-v))
+               end) =~ "Sfc.Gen.Design  v0.0.1"
       end)
     end
   end
 
-  # Example of testing generated file
-  #
   # test "generates foo/bar", config do
   #   in_tmp_project(config.test, fn ->
   #     Gen.Design.run(~w(foo_bar -q))
@@ -36,5 +34,4 @@ defmodule Mix.Tasks.Sfc.Gen.DesignTest do
 
   #   end)
   # end
-
 end

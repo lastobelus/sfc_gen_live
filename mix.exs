@@ -26,8 +26,9 @@ defmodule SfcGenLive.MixProject do
   defp deps do
     [
       {:phoenix, git: "https://github.com/phoenixframework/phoenix.git", override: true},
-      {:surface,
-       git: "https://github.com/surface-ui/surface.git", orverride: true, branch: "surface-next"},
+      # {:surface,
+      #  git: "https://github.com/surface-ui/surface.git", orverride: true, branch: "surface-next"},
+      {:surface, path: "~/github/surface"},
       # {:phx_new, "~> 1.5.8", only: [:dev, :test]},
       # RADAR: I don't think there is a way to specify this as a git dependency, since phx_new is a directory in phoenixframework/phoenix
       {:phx_new, path: "~/github/phoenix/installer", only: [:dev, :test]},
