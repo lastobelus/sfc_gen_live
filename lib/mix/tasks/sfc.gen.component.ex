@@ -101,7 +101,7 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
 
 
     If default is specified, it should be followed with the value in brackets.
-    If values is specified, it should be followed with a pipe-delimited list
+    If values is specified, it should be followed with a comma-delimited list
     of values in brackets.
 
         mix sfc.gen.component Button rounded:boolean color:string:default[gray]

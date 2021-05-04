@@ -1,3 +1,5 @@
+#  Copied from  https://github.com/phoenixframework/phoenix.git
+
 # Get Mix output sent to the current
 # process to avoid polluting tests.
 Mix.shell(Mix.Shell.Process)
@@ -11,6 +13,9 @@ end
 defmodule MixHelper do
   import ExUnit.Assertions
   import ExUnit.CaptureIO
+
+  @app_name :sfc_gen_live
+  @test_app_name :sfc_gen_live_test
 
   def tmp_path do
     Path.expand("../../tmp", __DIR__)
@@ -35,35 +40,36 @@ defmodule MixHelper do
   def in_generated_phoenix_live_project(test, func) do
     in_tmp_project(test, fn ->
       send(self(), {:mix_shell_input, :yes?, false})
-      Mix.Tasks.Phx.New.run(~w(sfc_gen_live --live))
+      Mix.Tasks.Phx.New.run(~w(#{@app_name} --live))
 
-      File.cd!("sfc_gen_live", fn ->
+      File.cd!(to_string(@app_name), fn ->
         func.()
       end)
     end)
   end
 
-  def in_tmp_live_project(test, func) do
+  def in_tmp_phx_project(test, func) do
+    app = @test_app_name
+
     in_tmp_project(test, fn ->
-      File.mkdir_p!("lib")
-      File.touch!("lib/sfc_gen_live_web.ex")
-      File.touch!("lib/sfc_gen_live.ex")
+      File.write!("mix.exs", mixfile_contents(app, true))
+
       func.()
     end)
   end
 
   def in_tmp_live_umbrella_project(test, func) do
     in_tmp_umbrella_project(test, fn ->
-      File.mkdir_p!("sfc_gen_live/lib")
-      File.mkdir_p!("sfc_gen_live_web/lib")
-      File.touch!("sfc_gen_live/lib/sfc_gen_live.ex")
-      File.touch!("sfc_gen_live_web/lib/sfc_gen_live_web.ex")
+      File.mkdir_p!("#{@app_name}/lib")
+      File.mkdir_p!("#{@app_name}_web/lib")
+      File.touch!("#{@app_name}/lib/#{@app_name}.ex")
+      File.touch!("#{@app_name}_web/lib/#{@app_name}_web.ex")
       func.()
     end)
   end
 
   def in_tmp_project(which, function) do
-    conf_before = Application.get_env(:sfc_gen_live, :generators) || []
+    conf_before = Application.get_env(@app_name, :generators) || []
     path = Path.join([tmp_path(), random_string(10), to_string(which)])
 
     try do
@@ -71,17 +77,20 @@ defmodule MixHelper do
       File.mkdir_p!(path)
 
       File.cd!(path, fn ->
-        File.touch!("mix.exs")
+        File.mkdir_p!("lib")
+        File.mkdir_p!("test")
+        File.write!("mix.exs", mixfile_contents(@test_app_name, false))
+        File.write!("test/test_helper.exs", "ExUnit.start()\n")
         function.()
       end)
     after
       File.rm_rf!(path)
-      Application.put_env(:sfc_gen_live, :generators, conf_before)
+      Application.put_env(@app_name, :generators, conf_before)
     end
   end
 
   def in_tmp_umbrella_project(which, function) do
-    conf_before = Application.get_env(:sfc_gen_live, :generators) || []
+    conf_before = Application.get_env(@app_name, :generators) || []
     path = Path.join([tmp_path(), random_string(10), to_string(which)])
 
     try do
@@ -99,7 +108,7 @@ defmodule MixHelper do
 
       File.cd!(apps_path, function)
     after
-      Application.put_env(:sfc_gen_live, :generators, conf_before)
+      Application.put_env(@app_name, :generators, conf_before)
       File.rm_rf!(path)
     end
   end
@@ -142,13 +151,46 @@ defmodule MixHelper do
   end
 
   def with_generator_env(new_env, fun) do
-    Application.put_env(:sfc_gen_live, :generators, new_env)
+    Application.put_env(@app_name, :generators, new_env)
 
     try do
       fun.()
     after
-      Application.delete_env(:sfc_gen_live, :generators)
+      Application.delete_env(@app_name, :generators)
     end
+  end
+
+  def mixfile_contents(app, phoenix \\ false) do
+    deps =
+      case phoenix do
+        true ->
+          """
+          [
+            {:phoenix, "~> 1.5.7"}
+          ]
+          """
+
+        false ->
+          "[]"
+      end
+
+    """
+    defmodule #{Macro.camelize(to_string(app))}.Mixfile do
+      use Mix.Project
+
+      def project do
+        [app: #{inspect(app)}, version: "0.1.0", deps: deps()]
+      end
+
+      def application do
+        [applications: [:logger]]
+      end
+
+      defp deps do
+        #{deps}
+      end
+    end
+    """
   end
 
   def umbrella_mixfile_contents do
@@ -176,5 +218,20 @@ defmodule MixHelper do
     after
       0 -> :ok
     end
+  end
+
+  def inspect_app_dir(also \\ nil) do
+    IO.puts("----------------------------------------------")
+    IO.puts("File.cwd!(): #{inspect(File.cwd!())}")
+    IO.puts("File.ls!(): #{inspect(File.ls!())}")
+
+    if also do
+      IO.puts("File.ls!(#{also}): #{inspect(File.ls!(also))}")
+    else
+      System.cmd("tree", [])
+    end
+
+    # hi
+    IO.puts("----------------------------------------------")
   end
 end
