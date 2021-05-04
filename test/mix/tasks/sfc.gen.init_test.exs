@@ -70,16 +70,4 @@ defmodule Mix.Tasks.Sfc.Gen.InitTest do
       end)
     end)
   end
-
-  defp inspect_app_dir(also \\ nil) do
-    IO.puts("----------------------------------------------")
-    IO.puts("File.cwd!(): #{inspect(File.cwd!())}")
-    IO.puts("File.ls!(): #{inspect(File.ls!())}")
-
-    if also do
-      IO.puts("File.ls!(#{also}): #{inspect(File.ls!(also))}")
-    end
-
-    IO.puts("----------------------------------------------")
-  end
 end
