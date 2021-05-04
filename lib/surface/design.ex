@@ -82,9 +82,11 @@ defmodule Surface.Design do
     meta = Map.merge(meta, %{module: mod, node_alias: name})
     name = Phoenix.Naming.underscore(mod)
 
-    IO.inspect(mod, label: "69 mod")
-    IO.inspect(name, label: "69 name")
-    IO.inspect(meta, label: "70 meta")
+    IO.inspect(mod, label: "85 mod")
+    IO.inspect(name, label: "86 name")
+    IO.inspect(meta, label: "87 meta")
+
+    # TODO recurse here
 
     %Generator{generator: :component, name: name}
   end
