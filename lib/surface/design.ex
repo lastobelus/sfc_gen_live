@@ -53,26 +53,23 @@ defmodule Surface.Design do
   defp to_generators(nodes, design_meta) do
     nodes
     |> Enum.reduce(design_meta, fn node, meta ->
-      case convert_node_to_generator(node_type(node), node, design_meta) do
-        :ignore ->
-          meta
-
-        %Generator{name: name} = new_generator ->
-          update_in(meta.generators[name], fn old_generator ->
-            merge_generators(old_generator, new_generator)
-          end)
-      end
+      extract_generators_from_node(node_type(node), node, meta)
     end)
   end
 
   defp merge_generators(nil, generator), do: generator
+  defp merge_generators(old_generator, new_generator), do: new_generator
 
-  defp merge_generators(old_generator, new_generator) do
-    # TODO
-    new_generator
+  defp add_generator(design_meta, new_generator) do
+    update_in(design_meta.generators[new_generator.name], fn old_generator ->
+      merge_generators(
+        old_generator,
+        new_generator
+      )
+    end)
   end
 
-  defp convert_node_to_generator(
+  defp extract_generators_from_node(
          :component,
          {name, attributes, children, node_meta},
          design_meta
@@ -82,17 +79,21 @@ defmodule Surface.Design do
     meta = Map.merge(meta, %{module: mod, node_alias: name})
     name = Phoenix.Naming.underscore(mod)
 
+    IO.puts("------------extract_generators_from_node(component)-----------------")
     IO.inspect(mod, label: "85 mod")
     IO.inspect(name, label: "86 name")
     IO.inspect(meta, label: "87 meta")
 
-    # TODO recurse here
+    design_meta = to_generators(children, design_meta)
 
-    %Generator{generator: :component, name: name}
+    add_generator(design_meta, %Generator{generator: :component, name: name})
   end
 
-  defp convert_node_to_generator(node_type, _node, _design_meta) do
-    IO.puts("convert_node_to_generator: CANT PARSE #{node_type} yet")
+  defp extract_generators_from_node(:text, _text, design_meta), do: design_meta
+
+  defp extract_generators_from_node(node_type, _node, design_meta) do
+    IO.puts("extract_generators_from_node: CANT PARSE #{node_type} yet")
+    design_meta
   end
 
   # region [ copied-from-surface-compiler ]
@@ -129,4 +130,8 @@ defmodule Surface.Design do
   defp node_type(_), do: :text
 
   # endregion [ copied-from-surface-compiler ]
+
+  def inspect_generators(design_meta, msg) do
+    IO.puts("msg\n#{inspect(design_meta.generators, pretty: true)}")
+  end
 end

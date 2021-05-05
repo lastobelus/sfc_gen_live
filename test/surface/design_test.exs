@@ -17,5 +17,28 @@ defmodule Surface.DesignTest do
                }
              } = output
     end
+
+    test "it parses nested components and ignores html" do
+      sface = """
+      <Card>
+        <Card.Header>
+          <span>How dy</span>
+          <Button>Click me</Button>
+        </Card.Header>
+        <Card.Footer>Lorem Ipsum</Card.Footer>
+      </Card>
+      """
+
+      output = Design.parse(sface, 1, __ENV__)
+
+      assert %DesignMeta{
+               generators: %{
+                 "card" => %Generator{generator: :component, name: "card"},
+                 "card/header" => %Generator{generator: :component, name: "card/header"},
+                 "card/footer" => %Generator{generator: :component, name: "card/footer"},
+                 "button" => %Generator{generator: :component, name: "button"}
+               }
+             } = output
+    end
   end
 end
