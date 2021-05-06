@@ -11,7 +11,7 @@ defmodule Surface.Design do
   alias Surface.Design.DesignMeta
 
   defmodule Generator do
-    defstruct [:generator, :name, :props, :slots]
+    defstruct [:generator, :name, props: %{}, slots: %{}]
   end
 
   defmodule DesignMeta do
@@ -33,7 +33,8 @@ defmodule Surface.Design do
 
     design_meta = %DesignMeta{
       compile_meta: compile_meta,
-      generators: %{}
+      generators: %{},
+      parent: []
     }
 
     string
@@ -55,6 +56,7 @@ defmodule Surface.Design do
   defp to_generators(nodes, %DesignMeta{} = design_meta) do
     nodes
     |> Enum.reduce(design_meta, fn node, meta ->
+      IO.puts("node: #{node_type(node)}...")
       extract_generators_from_node(node_type(node), node, meta)
     end)
   end
@@ -97,7 +99,17 @@ defmodule Surface.Design do
     design_meta
   end
 
-  defp extract_generators_from_node(:text, _text, design_meta), do: design_meta
+  defp extract_generators_from_node(:text, text, design_meta) do
+    # IO.puts("text: #{inspect(text)}")
+    trimmed = text |> String.downcase() |> String.trim()
+
+    required = not (String.length(trimmed) == 0 or String.starts_with?(trimmed, "optional"))
+    add_slot(design_meta, "default", required)
+  end
+
+  defp extract_generators_from_node(:tag, {name, attributes, children, node_meta}, design_meta) do
+    add_slot(design_meta, "default", true)
+  end
 
   defp extract_generators_from_node(node_type, _node, design_meta) do
     IO.puts("extract_generators_from_node: CANT PARSE #{node_type} yet")
@@ -162,5 +174,29 @@ defmodule Surface.Design do
   defp pop_parent(design_meta) do
     [_popped | parent] = design_meta.parent
     %DesignMeta{design_meta | parent: parent}
+  end
+
+  defp parent(design_meta) do
+    List.first(design_meta.parent)
+  end
+
+  defp add_slot(design_meta, name), do: add_slot(design_meta, name, true)
+
+  defp add_slot(design_meta, name, required) do
+    case parent(design_meta) do
+      nil ->
+        design_meta
+
+      parent_name ->
+        update_in(design_meta.generators[parent_name].slots, fn slots ->
+          case required do
+            true ->
+              Map.put(slots, name, true)
+
+            false ->
+              Map.put_new(slots, name, false)
+          end
+        end)
+    end
   end
 end
