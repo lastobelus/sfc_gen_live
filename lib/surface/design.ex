@@ -15,7 +15,7 @@ defmodule Surface.Design do
   end
 
   defmodule DesignMeta do
-    defstruct [:compile_meta, :generators]
+    defstruct [:compile_meta, :parent, :generators]
 
     @type t :: %__MODULE__{
             compile_meta: CompilerMeta,
@@ -50,7 +50,9 @@ defmodule Surface.Design do
     |> IO.inspect(label: "output")
   end
 
-  defp to_generators(nodes, design_meta) do
+  defp to_generators(%DesignMeta{} = design_meta, nodes), do: to_generators(nodes, design_meta)
+
+  defp to_generators(nodes, %DesignMeta{} = design_meta) do
     nodes
     |> Enum.reduce(design_meta, fn node, meta ->
       extract_generators_from_node(node_type(node), node, meta)
@@ -84,9 +86,15 @@ defmodule Surface.Design do
     IO.inspect(name, label: "86 name")
     IO.inspect(meta, label: "87 meta")
 
-    design_meta = to_generators(children, design_meta)
+    design_meta
+    |> add_generator(%Generator{generator: :component, name: name})
+    |> push_parent(name)
+    |> to_generators(children)
+    |> pop_parent()
+  end
 
-    add_generator(design_meta, %Generator{generator: :component, name: name})
+  defp extract_generators_from_node(:template, _text, design_meta) do
+    design_meta
   end
 
   defp extract_generators_from_node(:text, _text, design_meta), do: design_meta
@@ -129,9 +137,30 @@ defmodule Surface.Design do
   defp node_type({:comment, _}), do: :comment
   defp node_type(_), do: :text
 
+  defp attribute_value(attributes, attr_name, default) do
+    Enum.find_value(attributes, default, fn {name, value, _} ->
+      if name == attr_name do
+        String.to_atom(value)
+      end
+    end)
+  end
+
+  defp get_slot_name("template", attributes), do: attribute_value(attributes, "slot", :default)
+  defp get_slot_name("#template", attributes), do: attribute_value(attributes, "slot", :default)
+  defp get_slot_name(":" <> name, _), do: String.to_atom(name)
+
   # endregion [ copied-from-surface-compiler ]
 
   def inspect_generators(design_meta, msg) do
     IO.puts("msg\n#{inspect(design_meta.generators, pretty: true)}")
+  end
+
+  defp push_parent(design_meta, parent) do
+    %DesignMeta{design_meta | parent: [parent | design_meta.parent]}
+  end
+
+  defp pop_parent(design_meta) do
+    [_popped | parent] = design_meta.parent
+    %DesignMeta{design_meta | parent: parent}
   end
 end

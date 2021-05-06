@@ -75,5 +75,16 @@ sfc.gen.design:
   ✔ generate sfc.gen.design with mo.gen.gen @done(2021-05-03 20:22)
   ☐ get helloworld vesion working, that parses `<Hello/>` and spits out `sfc.gen.component hello`
   ☐ test of helloworld version, including inception
+  handling slots:
+    component with default slot and dummy content
+      - none of the (recursive) children are components or templates
+      - save the dummy content to add to the component template
+    component with <:slot_name></:slot_name>
+      - named slot
+      - can set `required` like this: <:header required="true"></:header>
+    component with typed slot <Card><Card.Header slot="header"></Card.Header>
+      -or- <Card><Card.Header></Card.Header> always assume a component with a namespace same as parent indicates a typed slot (but what if you have a slot that can hold more than one typed slotable?)
+      -or- <Card><:header><Card.Header>...</Card.Header></:header></Card> this assumes that a namespaced component as sole child of a template is a typed slotable for that slot
+   to parse, we need to hold the current generator(s) in a context, so that if we see templates/slotables we can add to the slots of the component they are in
 
 

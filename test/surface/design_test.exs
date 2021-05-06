@@ -40,5 +40,23 @@ defmodule Surface.DesignTest do
                }
              } = output
     end
+
+    test "it parses an optional slot and slot template" do
+      sface = """
+      <Card>
+        <:header>
+        </:header>
+        <slot>Default Content</slot>
+      </Card>
+      """
+
+      output = Design.parse(sface, 1, __ENV__)
+
+      assert %DesignMeta{
+               generators: %{
+                 "card" => %Generator{generator: :component, name: "card", slots: ["header"]}
+               }
+             } = output
+    end
   end
 end
