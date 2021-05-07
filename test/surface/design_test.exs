@@ -121,5 +121,26 @@ defmodule Surface.DesignTest do
                }
              } = output
     end
+
+    test "it adds props to components using the value as type" do
+      sface = """
+      <Card title={string}>
+        Lorem Ipsum
+      </Card>
+      """
+
+      output = Design.parse(sface, 1, __ENV__)
+
+      assert %DesignMeta{
+               generators: %{
+                 "card" => %Generator{
+                   generator: :component,
+                   name: "card",
+                   slots: %{"default" => true},
+                   props: %{"title" => :string}
+                 }
+               }
+             } = output
+    end
   end
 end
