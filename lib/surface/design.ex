@@ -97,8 +97,22 @@ defmodule Surface.Design do
     |> pop_parent()
   end
 
-  defp extract_generators_from_node(:template, _text, design_meta) do
+  defp extract_generators_from_node(
+         :template,
+         {name, attributes, children, node_meta},
+         design_meta
+       ) do
+    slot = get_slot_name(name, attributes)
+    IO.puts("template:")
+    IO.puts("name: #{inspect(name)}")
+    IO.puts("attributes: #{inspect(attributes)}")
+    IO.puts("children: #{inspect(children)}")
+    IO.puts("slot: #{inspect(slot)}")
+
+    required = required_content?(children)
+
     design_meta
+    |> add_slot(to_string(slot), required)
   end
 
   defp extract_generators_from_node(:text, text, design_meta) do
@@ -110,7 +124,14 @@ defmodule Surface.Design do
   end
 
   defp extract_generators_from_node(:tag, {name, attributes, children, node_meta}, design_meta) do
-    add_slot(design_meta, "default", true)
+    design_meta
+    |> add_slot("default", true)
+    |> to_generators(children)
+  end
+
+  defp extract_generators_from_node(:interpolation, {_, text, node_meta}, design_meta) do
+    IO.puts("interpolation: #{text}")
+    app_prop_from_interpolation(design_meta, text)
   end
 
   defp extract_generators_from_node(node_type, _node, design_meta) do
@@ -236,6 +257,18 @@ defmodule Surface.Design do
     List.first(design_meta.parent)
   end
 
+  defp required_content?([text, _rest]) when is_binary(text), do: required_content?([text])
+
+  defp required_content?([text]) when is_binary(text) do
+    text
+    |> String.trim()
+    |> String.downcase()
+    |> String.starts_with?("optional")
+    |> Kernel.not()
+  end
+
+  defp required_content?(_), do: false
+
   defp add_slot(design_meta, name), do: add_slot(design_meta, name, true)
 
   defp add_slot(design_meta, name, required) do
@@ -276,5 +309,22 @@ defmodule Surface.Design do
   defp prop_opts_from_attribute_value({:attribute_expr, type, _meta}) do
     # TODO validation/error handling
     String.to_existing_atom(type)
+  end
+
+  defp app_prop_from_interpolation(design_meta, value) do
+    cond do
+      String.starts_with?(value, "@") ->
+        value = String.slice(value, 1..-1)
+        [prop, type | _rest] = String.split(value <> "|string", "|")
+
+        generator_name = parent(design_meta)
+
+        update_in(design_meta.generators[generator_name].props, fn props ->
+          Map.put(props, prop, String.to_existing_atom(type))
+        end)
+
+      true ->
+        design_meta
+    end
   end
 end

@@ -122,6 +122,31 @@ defmodule Surface.DesignTest do
              } = output
     end
 
+    test "it adds slots when it sees <:slot_name>" do
+      sface = """
+      <Card>
+        <:header>Header text</:header>
+        Body
+        <:footer>
+          Optional Footer Text
+          <div>with html</div>
+        </:footer>
+      </Card>
+      """
+
+      output = Design.parse(sface, 1, __ENV__)
+
+      assert %DesignMeta{
+               generators: %{
+                 "card" => %Generator{
+                   generator: :component,
+                   name: "card",
+                   slots: %{"default" => true, "header" => true, "footer" => false}
+                 }
+               }
+             } = output
+    end
+
     test "it adds props to components using the value as type" do
       sface = """
       <Card title={string}>
@@ -138,6 +163,27 @@ defmodule Surface.DesignTest do
                    name: "card",
                    slots: %{"default" => true},
                    props: %{"title" => :string}
+                 }
+               }
+             } = output
+    end
+
+    test "it adds props from content" do
+      sface = """
+      <Widget>
+        Lorem Ipsum {@product|any}
+      </Widget>
+      """
+
+      output = Design.parse(sface, 1, __ENV__)
+
+      assert %DesignMeta{
+               generators: %{
+                 "widget" => %Generator{
+                   generator: :component,
+                   name: "widget",
+                   slots: %{"default" => true},
+                   props: %{"product" => :any}
                  }
                }
              } = output
