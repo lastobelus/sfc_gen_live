@@ -20,13 +20,16 @@ defmodule Surface.DesignTest do
 
     test "it parses nested components and ignores html" do
       sface = """
-      <Card>
-        <Card.Header>
-          <span>How dy</span>
-          <Button>Click me</Button>
-        </Card.Header>
-        <Card.Footer>Lorem Ipsum</Card.Footer>
-      </Card>
+      <section>
+        <!-- utility components -->
+        <Card>
+          <Card.Header>
+            <span>Howdy</span>
+            <Button>Click me</Button>
+          </Card.Header>
+          <Card.Footer>Lorem Ipsum</Card.Footer>
+        </Card>
+      </section>
       """
 
       output = Design.parse(sface, 1, __ENV__)
@@ -185,6 +188,43 @@ defmodule Surface.DesignTest do
                    slots: %{"default" => true},
                    props: %{"product" => :any}
                  }
+               }
+             } = output
+    end
+
+    test "it recognizes typed slots using slot=\"\"" do
+      sface = """
+      <Card>
+        <Card.Header slot="header" other="string">
+          Lorem Ipsum (some text not starting with optional makes the slot required)
+          <span>Howdy</span>
+          <Button>Click me</Button>
+        </Card.Header>
+        Lorem Ipsum
+        <Card.Footer slot="footer"></Card.Footer>
+      </Card>
+      """
+
+      output = Design.parse(sface, 1, __ENV__)
+
+      assert %DesignMeta{
+               generators: %{
+                 "card" => %Generator{
+                   generator: :component,
+                   name: "card",
+                   slots: %{"header" => true, "footer" => false}
+                 },
+                 "card/header" => %Generator{
+                   generator: :component,
+                   name: "card/header",
+                   slot: "header"
+                 },
+                 "card/footer" => %Generator{
+                   generator: :component,
+                   name: "card/footer",
+                   slot: "footer"
+                 },
+                 "button" => %Generator{generator: :component, name: "button"}
                }
              } = output
     end

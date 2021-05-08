@@ -7,11 +7,11 @@ defmodule Surface.Design do
 
   # defstruct [:design, :generators]
 
-  alias Surface.Compiler.{CompileMeta, Parser, ParseError, Helpers}
+  alias Surface.Compiler.{CompileMeta, Parser, ParseError}
   alias Surface.Design.DesignMeta
 
   defmodule Generator do
-    defstruct [:generator, :name, props: %{}, slots: %{}]
+    defstruct [:generator, :name, :slot, props: %{}, slots: %{}]
   end
 
   defmodule DesignMeta do
@@ -39,7 +39,7 @@ defmodule Surface.Design do
 
     string
     |> Parser.parse()
-    |> IO.inspect(label: "17 parser output")
+    # |> IO.inspect(label: "17 parser output")
     |> case do
       {:ok, nodes} ->
         nodes
@@ -48,7 +48,8 @@ defmodule Surface.Design do
         raise %ParseError{line: line + line_offset - 1, file: file, message: message}
     end
     |> to_generators(design_meta)
-    |> IO.inspect(label: "output")
+
+    # |> IO.inspect(label: "output")
   end
 
   defp to_generators(%DesignMeta{} = design_meta, nodes), do: to_generators(nodes, design_meta)
@@ -56,42 +57,29 @@ defmodule Surface.Design do
   defp to_generators(nodes, %DesignMeta{} = design_meta) do
     nodes
     |> Enum.reduce(design_meta, fn node, meta ->
-      IO.puts("node: #{node_type(node)}...")
       extract_generators_from_node(node_type(node), node, meta)
     end)
   end
 
-  defp merge_generators(nil, generator), do: generator
-  defp merge_generators(old_generator, new_generator), do: new_generator
-
   defp add_generator(design_meta, new_generator) do
-    update_in(design_meta.generators[new_generator.name], fn old_generator ->
-      merge_generators(
-        old_generator,
-        new_generator
-      )
+    update_in(design_meta.generators[new_generator.name], fn _old_generator ->
+      new_generator
     end)
   end
 
   defp extract_generators_from_node(
          :component,
-         {name, attributes, children, node_meta},
+         {name, attributes, children, _node_meta},
          design_meta
        ) do
-    meta = Helpers.to_meta(node_meta, design_meta.compile_meta)
-    mod = Helpers.actual_component_module!(name, meta.caller)
-    meta = Map.merge(meta, %{module: mod, node_alias: name})
-    name = Phoenix.Naming.underscore(mod)
+    name = Phoenix.Naming.underscore(name)
 
-    IO.puts("------------extract_generators_from_node(component)-----------------")
-    IO.inspect(mod, label: "mod")
-    IO.inspect(name, label: "name")
-    IO.inspect(attributes, label: "attributes")
-    IO.inspect(node_meta, label: "node_meta")
+    {attributes, slot} = split_typed_slot?(attributes)
 
     design_meta
+    |> add_slot(slot, required_content?(children))
     |> push_parent(name)
-    |> add_generator(%Generator{generator: :component, name: name})
+    |> add_generator(%Generator{generator: :component, name: name, slot: slot})
     |> add_props(attributes)
     |> to_generators(children)
     |> pop_parent()
@@ -99,15 +87,10 @@ defmodule Surface.Design do
 
   defp extract_generators_from_node(
          :template,
-         {name, attributes, children, node_meta},
+         {name, attributes, children, _node_meta},
          design_meta
        ) do
     slot = get_slot_name(name, attributes)
-    IO.puts("template:")
-    IO.puts("name: #{inspect(name)}")
-    IO.puts("attributes: #{inspect(attributes)}")
-    IO.puts("children: #{inspect(children)}")
-    IO.puts("slot: #{inspect(slot)}")
 
     required = required_content?(children)
 
@@ -116,26 +99,24 @@ defmodule Surface.Design do
   end
 
   defp extract_generators_from_node(:text, text, design_meta) do
-    # IO.puts("text: #{inspect(text)}")
     trimmed = text |> String.downcase() |> String.trim()
 
     required = not (String.length(trimmed) == 0 or String.starts_with?(trimmed, "optional"))
     add_slot(design_meta, "default", required)
   end
 
-  defp extract_generators_from_node(:tag, {name, attributes, children, node_meta}, design_meta) do
+  defp extract_generators_from_node(:tag, {_name, _attributes, children, _node_meta}, design_meta) do
     design_meta
     |> add_slot("default", true)
     |> to_generators(children)
   end
 
-  defp extract_generators_from_node(:interpolation, {_, text, node_meta}, design_meta) do
-    IO.puts("interpolation: #{text}")
+  defp extract_generators_from_node(:interpolation, {_, text, _node_meta}, design_meta) do
     app_prop_from_interpolation(design_meta, text)
   end
 
-  defp extract_generators_from_node(node_type, _node, design_meta) do
-    IO.puts("extract_generators_from_node: CANT PARSE #{node_type} yet")
+  defp extract_generators_from_node(_node_type, _node, design_meta) do
+    # IO.puts("extract_generators_from_node: CANT PARSE #{node_type} yet")
     design_meta
   end
 
@@ -241,7 +222,7 @@ defmodule Surface.Design do
 
   # endregion [ copied-from-surface-api]
   def inspect_generators(design_meta, msg) do
-    IO.puts("msg\n#{inspect(design_meta.generators, pretty: true)}")
+    IO.puts("#{msg}\n#{inspect(design_meta.generators, pretty: true)}")
   end
 
   defp push_parent(design_meta, parent) do
@@ -257,9 +238,11 @@ defmodule Surface.Design do
     List.first(design_meta.parent)
   end
 
-  defp required_content?([text, _rest]) when is_binary(text), do: required_content?([text])
+  defp required_content?([text | _rest]) when is_binary(text) do
+    required_content?(text)
+  end
 
-  defp required_content?([text]) when is_binary(text) do
+  defp required_content?(text) when is_binary(text) do
     text
     |> String.trim()
     |> String.downcase()
@@ -267,11 +250,35 @@ defmodule Surface.Design do
     |> Kernel.not()
   end
 
-  defp required_content?(_), do: false
+  defp required_content?(_) do
+    false
+  end
 
-  defp add_slot(design_meta, name), do: add_slot(design_meta, name, true)
+  defp split_typed_slot?([]), do: {[], nil}
 
-  defp add_slot(design_meta, name, required) do
+  defp split_typed_slot?(attributes) do
+    # TODO: validate only one "slot" attributes
+    {attributes, slot_attributes} =
+      Enum.split_with(attributes, fn attr ->
+        elem(attr, 0) != "slot"
+      end)
+
+    slot =
+      case slot_attributes do
+        [] -> nil
+        [{"slot", name, _} | _] -> name
+      end
+
+    {attributes, slot}
+  end
+
+  defp add_slot(design_meta, nil, _required), do: design_meta
+
+  defp add_slot(design_meta, [{"slot", name, _meta}], required) do
+    add_slot(design_meta, name, required)
+  end
+
+  defp add_slot(design_meta, name, required) when is_binary(name) do
     case parent(design_meta) do
       nil ->
         design_meta
@@ -297,8 +304,6 @@ defmodule Surface.Design do
   end
 
   defp add_prop_from_attribute({name, value, _attr_meta}, design_meta) do
-    IO.puts("add_prop_from_attribute #{name}  value: `#{inspect(value)}`")
-
     generator_name = parent(design_meta)
 
     update_in(design_meta.generators[generator_name].props, fn props ->
@@ -308,6 +313,10 @@ defmodule Surface.Design do
 
   defp prop_opts_from_attribute_value({:attribute_expr, type, _meta}) do
     # TODO validation/error handling
+    prop_opts_from_attribute_value(type)
+  end
+
+  defp prop_opts_from_attribute_value(type) when is_binary(type) do
     String.to_existing_atom(type)
   end
 
