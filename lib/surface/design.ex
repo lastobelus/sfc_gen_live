@@ -23,7 +23,9 @@ defmodule Surface.Design do
           }
   end
 
-  def parse(string, line_offset, caller, file \\ "nofile", opts \\ []) do
+  def parse(string, line_offset, caller, generators \\ %{}, file \\ "nofile", opts \\ [])
+
+  def parse(string, line_offset, caller, generators, file, opts) do
     compile_meta = %CompileMeta{
       line_offset: line_offset,
       file: file,
@@ -33,7 +35,7 @@ defmodule Surface.Design do
 
     design_meta = %DesignMeta{
       compile_meta: compile_meta,
-      generators: %{},
+      generators: generators,
       parent: []
     }
 

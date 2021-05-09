@@ -228,5 +228,9 @@ defmodule Surface.DesignTest do
                }
              } = output
     end
+
+    test "it merges generators" do
+      flunk("implement merging generators")
+    end
   end
 end

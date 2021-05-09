@@ -4,8 +4,17 @@ defmodule Mix.Tasks.Sfc.Gen.Init do
   """
   use Mix.Task
 
-  @switches [template: :boolean, namespace: :string, demo: :boolean, context_app: :string]
-  @default_opts [template: true, namespace: "components", demo: true]
+  @switches [
+    template: :boolean,
+    namespace: :string,
+    demo: :boolean,
+    context_app: :string
+  ]
+  @default_opts [
+    template: true,
+    namespace: "components",
+    demo: true
+  ]
   @aliases [t: :template, n: :namespace, d: :demo]
   @doc false
   def run(args) do
