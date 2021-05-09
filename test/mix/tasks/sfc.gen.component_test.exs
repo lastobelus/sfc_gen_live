@@ -54,4 +54,23 @@ defmodule Mix.Tasks.Sfc.Gen.ComponentTest do
       end)
     end)
   end
+
+  test "typed slotable", config do
+    in_tmp_project(config.test, fn ->
+      # Gen.Component.run(~w(table/head size:string:required:values[small|medium|large]))
+      Gen.Component.run(~w(
+          card/header
+          --slot default:required
+          --for-slot header
+        ))
+
+      assert_file("lib/sfc_gen_live_web/components/card/header.ex", fn file ->
+        assert file =~ "defmodule SfcGenLiveWeb.Components.Card.Header"
+        assert file =~ ~s(use Surface.Component, slot: "header")
+        assert file =~ "slot default, required: true"
+        assert file =~ "<slot/>"
+        assert file =~ ~r/<!--[^>]* typed slotable for slot `header`/
+      end)
+    end)
+  end
 end

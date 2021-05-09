@@ -2,7 +2,7 @@ defmodule <%= inspect module %> do
   @moduledoc """
   Document <%= inspect module %> here.
   """
-  use Surface.Component
+  use Surface.Component<%= for_slot %>
 <%= for {name, prop} <- props do %>
   @doc "property <%= name %>"
   prop <%= name %>, <%= inspect prop.type %><%= Enum.join(prop.opts, ", ") %>
@@ -13,7 +13,7 @@ defmodule <%= inspect module %> do
 
   def render(assigns) do
     ~H"""
-    <!-- <%= human %> --><%= for slot <- slots do %>
+    <!-- <%= human %>  <%= for_slot_comment %>--><%= for slot <- slots do %>
 
     <slot<%= slot.attr_name %><%= slot.attr_props %>/><% end %>
     """

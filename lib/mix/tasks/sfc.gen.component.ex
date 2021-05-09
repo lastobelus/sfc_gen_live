@@ -6,7 +6,14 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
 
   alias Mix.Surface.Component.{Props, Slots}
 
-  @switches [template: :boolean, namespace: :string, slot: [:string, :keep], context_app: :string]
+  @switches [
+    template: :boolean,
+    namespace: :string,
+    slot: [:string, :keep],
+    context_app: :string,
+    for_slot: :string
+  ]
+
   @default_opts [template: false, namespace: "components"]
   @doc false
   def run(args) do
@@ -18,11 +25,15 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
     # |> validate_slots!()
     slots = slots |> Slots.parse()
 
+    {for_slot, for_slot_comment} = parse_for_slot(opts[:for_slot])
+
     assigns =
       Mix.SfcGenLive.inflect(namespace_parts, name_parts)
       |> Keyword.put(:props, props)
       |> Keyword.put(:template, opts[:template])
       |> Keyword.put(:slots, slots)
+      |> Keyword.put(:for_slot, for_slot)
+      |> Keyword.put(:for_slot_comment, for_slot_comment)
 
     paths = Mix.SfcGenLive.generator_paths()
 
@@ -162,5 +173,16 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
       false ->
         name_parts
     end
+  end
+
+  defp parse_for_slot(nil), do: {"", ""}
+
+  defp parse_for_slot(name) do
+    normalized_name = Phoenix.Naming.underscore(name)
+
+    {
+      ~s(, slot: "#{normalized_name}"),
+      "typed slotable for slot `#{normalized_name}` "
+    }
   end
 end
