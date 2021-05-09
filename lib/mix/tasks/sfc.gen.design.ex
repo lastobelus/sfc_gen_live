@@ -5,13 +5,9 @@ defmodule Mix.Tasks.Sfc.Gen.Design do
 
   use Mix.Task
 
-  @shortdoc "One-line description of Mix.Tasks.Sfc.Gen.Design here (used by mix help, required for task to show up)"
+  @shortdoc ~s(Generate a set of Surface components from a "design" file in `.sface` format)
 
   @version "0.0.1"
-
-  # customize colors of the CLI title banner for your task
-  @cli_theme_bg 240
-  @cli_theme_fg 250
 
   # see https://hexdocs.pm/elixir/OptionParser.html#parse/2
   @switches [quiet: :boolean]
@@ -21,13 +17,13 @@ defmodule Mix.Tasks.Sfc.Gen.Design do
   @doc false
   @impl true
   def run([version]) when version in ~w(-v --version) do
-    print_version_banner(quiet: false)
+    Mix.SfcGenLive.print_version_banner(__MODULE__, quiet: false)
   end
 
   def run(args) do
     {opts, args} = parse_opts!(args)
 
-    print_version_banner(opts)
+    Mix.SfcGenLive.print_version_banner(__MODULE__, opts)
 
     IO.puts("opts: #{inspect(opts)}")
     IO.puts("args: #{inspect(args)}")
@@ -40,23 +36,10 @@ defmodule Mix.Tasks.Sfc.Gen.Design do
   end
 
   defp parse_opts!(args) do
-    {opts, parsed} =
-      OptionParser.parse!(args, strict: @switches, aliases: [q: :quiet])
+    {opts, parsed} = OptionParser.parse!(args, strict: @switches, aliases: [q: :quiet])
 
     merged_opts = Keyword.merge(@default_opts, opts)
 
     {merged_opts, parsed}
   end
-
-  defp print_version_banner(opts) do
-    unless opts[:quiet] do
-      text = theme(" Sfc.Gen.Design  v#{@version} ")
-      IO.puts(text)
-    end
-  end
-
-  defp theme(text) do
-    IO.ANSI.color_background(@cli_theme_bg) <> IO.ANSI.color(@cli_theme_fg) <> text <> IO.ANSI.reset()
-  end
-
 end

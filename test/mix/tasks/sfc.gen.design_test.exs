@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Sfc.Gen.DesignTest do
       in_tmp_project(config.test, fn ->
         assert capture_io(fn ->
                  Gen.Design.run(~w(-v))
-               end) =~ "Sfc.Gen.Design  v0.0.1"
+               end) =~ "Sfc.Gen.Design  v0.1.5"
       end)
     end
   end

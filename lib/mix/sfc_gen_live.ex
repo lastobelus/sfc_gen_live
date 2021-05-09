@@ -1,6 +1,9 @@
 defmodule Mix.SfcGenLive do
   @moduledoc false
 
+  @cli_theme_bg 32
+  @cli_theme_fg 15
+
   @doc """
   The paths to look for template files for generators.
 
@@ -12,6 +15,7 @@ defmodule Mix.SfcGenLive do
   end
 
   # this
+  @spec put_context_app(keyword, nil | binary) :: [{atom, any}, ...]
   def put_context_app(opts, nil) do
     Keyword.put(opts, :context_app, Mix.Phoenix.context_app())
   end
@@ -36,6 +40,12 @@ defmodule Mix.SfcGenLive do
     |> String.split("/", trim: true)
   end
 
+  def web_module_path(ctx_app) do
+    web_prefix = Mix.Phoenix.web_path(ctx_app)
+    [lib_prefix, web_dir] = Path.split(web_prefix)
+    Path.join(lib_prefix, "#{web_dir}.ex")
+  end
+
   def inflect(namespace_parts, name, context_app \\ nil)
 
   def inflect(namespace_parts, name, context_app) when is_nil(context_app),
@@ -49,8 +59,7 @@ defmodule Mix.SfcGenLive do
     web_path = Mix.Phoenix.web_path(context_app)
     base = Module.concat([Mix.Phoenix.base()])
     web_module = base |> Mix.Phoenix.web_module()
-    [lib_prefix, web_dir] = Path.split(web_path)
-    web_module_path = Path.join(lib_prefix, "#{web_dir}.ex")
+    web_module_path = web_module_path(context_app)
 
     scoped = path |> Phoenix.Naming.camelize()
     namespace_module = Module.concat(namespace_parts |> Enum.map(&Phoenix.Naming.camelize/1))
@@ -227,7 +236,23 @@ defmodule Mix.SfcGenLive do
     Phoenix.Naming.camelize(name) =~ ~r/^[A-Z]\w*(\.[A-Z]\w*)*$/
   end
 
-  defp inspect_string_list(strlist) do
+  def inspect_string_list(strlist) do
     strlist |> Enum.with_index() |> Enum.each(fn {x, i} -> IO.puts("#{i} ---------\n`#{x}`") end)
+  end
+
+  def print_version_banner(task, opts) do
+    version = Application.spec(:sfc_gen_live, :vsn) |> to_string
+
+    task = task |> to_string() |> String.replace_leading("Elixir.Mix.Tasks.", "")
+
+    unless opts[:quiet] do
+      text = theme(" #{to_string(task)}  v#{version} ")
+      IO.puts(text)
+    end
+  end
+
+  def theme(text) do
+    IO.ANSI.color_background(@cli_theme_bg) <>
+      IO.ANSI.color(@cli_theme_fg) <> text <> IO.ANSI.reset()
   end
 end
