@@ -4,6 +4,7 @@ defmodule Mix.SfcGenLive do
   @cli_theme_bg 32
   @cli_theme_fg 15
 
+  alias Mix.Surface.Component.Code
   @doc """
   The paths to look for template files for generators.
 
@@ -40,6 +41,7 @@ defmodule Mix.SfcGenLive do
     |> String.split("/", trim: true)
   end
 
+  @spec web_module_path(atom) :: binary
   def web_module_path(ctx_app) do
     web_prefix = Mix.Phoenix.web_path(ctx_app)
     [lib_prefix, web_dir] = Path.split(web_prefix)
@@ -124,22 +126,22 @@ defmodule Mix.SfcGenLive do
         how_many
       ) do
     # I cannot figure out why the extended regex doesn't work
-    # block_match = ~r/
-    #   ^(?<indent>\ *)(?<start>
-    #      #{Regex.escape(fragment)}
-    #      .*\n
-    #    )
-    #    (?<guts>
-    #      (?:
-    #        (?:^\k<indent>\ +.*\n) | (?:^\s*\n)
-    #      )*
-    #    )
-    #    (?<end>
-    #      ^\k<indent>end\ *\n   # this part doesn't match, don't know why!!!!
-    #    )/mx
+    block_match = ~r/
+      ^(?<indent>\ *)(?<start>
+         #{Regex.source(fragment)}
+         .*[\n]
+       )
+       (?<guts>
+         (?:
+           (?:^\k<indent>\ +.*[\n]) | (?:^\s*[\n])
+         )*
+       )
+       (?<end>
+         ^\k<indent>end\ *[\n]   # this part doesn't match, don't know why!!!!
+       )/mx
 
-    block_match =
-      ~r/^(?<indent> *)(?<start>#{Regex.source(fragment)}.*\n)(?<guts>(?:(?:^\k<indent>\ +.*\n)|(?:^\s*\n))*)(?<end>^\k<indent>end *\n)/m
+    # block_match =
+    #   ~r/^(?<indent> *)(?<start>#{Regex.source(fragment)}.*\n)(?<guts>(?:(?:^\k<indent>\ +.*\n)|(?:^\s*\n))*)(?<end>^\k<indent>end *\n)/m
 
     num_parts =
       case how_many do
@@ -255,4 +257,43 @@ defmodule Mix.SfcGenLive do
     IO.ANSI.color_background(@cli_theme_bg) <>
       IO.ANSI.color(@cli_theme_fg) <> text <> IO.ANSI.reset()
   end
+
+  @spec update_from(any, any, any, maybe_improper_list) :: list
+  def update_from(apps, source_dir, binding, mapping) when is_list(mapping) do
+    roots = Enum.map(apps, &to_app_source(&1, source_dir))
+
+    for {format, source_file_path, target} <- mapping do
+      source =
+        Enum.find_value(roots, fn root ->
+          source = Path.join(root, source_file_path)
+          if File.exists?(source), do: source
+        end) || raise "could not find #{source_file_path} in any of the sources"
+
+      case format do
+        :text ->
+          Mix.Generator.create_file(target, File.read!(source))
+
+        :eex ->
+          if File.exists?(target) do
+            Code.update_component_file(target, binding)
+          else
+            Mix.Generator.create_file(target, EEx.eval_file(source, binding))
+          end
+
+        :new_eex ->
+          if File.exists?(target) do
+            :ok
+          else
+            Mix.Generator.create_file(target, EEx.eval_file(source, binding))
+          end
+      end
+    end
+  end
+
+  defp to_app_source(path, source_dir) when is_binary(path),
+    do: Path.join(path, source_dir)
+
+  defp to_app_source(app, source_dir) when is_atom(app),
+    do: Application.app_dir(app, source_dir)
+
 end

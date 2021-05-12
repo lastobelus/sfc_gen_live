@@ -11,7 +11,8 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
     namespace: :string,
     slot: [:string, :keep],
     context_app: :string,
-    for_slot: :string
+    for_slot: :string,
+    update: :boolean
   ]
 
   @default_opts [template: false, namespace: "components"]
@@ -35,6 +36,8 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
       |> Keyword.put(:for_slot, for_slot)
       |> Keyword.put(:for_slot_comment, for_slot_comment)
 
+    IO.puts("assigns: #{inspect(assigns, pretty: true)}")
+
     paths = Mix.SfcGenLive.generator_paths()
 
     files = [
@@ -45,7 +48,13 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
       {:eex, "component.sface", Path.join(assigns[:web_path], "#{assigns[:path]}.sface")}
     ]
 
-    Mix.Phoenix.copy_from(paths, "priv/templates/sfc.gen.component", assigns, files)
+    cond do
+      opts[:update] ->
+        Mix.SfcGenLive.update_from(paths, "priv/templates/sfc.gen.component", assigns, files)
+
+      true ->
+        Mix.Phoenix.copy_from(paths, "priv/templates/sfc.gen.component", assigns, files)
+    end
 
     if opts[:template] do
       Mix.Phoenix.copy_from(paths, "priv/templates/sfc.gen.component", assigns, template_files)

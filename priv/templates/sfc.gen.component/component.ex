@@ -7,7 +7,7 @@ defmodule <%= inspect module %> do
   @doc "property <%= name %>"
   prop <%= name %>, <%= inspect prop.type %><%= Enum.join(prop.opts, ", ") %>
 <% end %><%= for slot <- slots do %>
-  @doc "property <%= slot.name %>"
+  @doc "slot <%= slot.name %>"
   slot <%= slot.name %><%= Enum.join(slot.opts, ", ") %>
 <% end %><%= unless template do %>
 

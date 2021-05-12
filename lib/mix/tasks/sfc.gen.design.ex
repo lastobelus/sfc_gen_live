@@ -3,11 +3,10 @@ defmodule Mix.Tasks.Sfc.Gen.Design do
   Document Mix.Tasks.Sfc.Gen.Design here.
   """
 
+  alias Surface.Design
   use Mix.Task
 
   @shortdoc ~s(Generate a set of Surface components from a "design" file in `.sface` format)
-
-  @version "0.0.1"
 
   # see https://hexdocs.pm/elixir/OptionParser.html#parse/2
   @switches [
@@ -48,13 +47,41 @@ defmodule Mix.Tasks.Sfc.Gen.Design do
     IO.puts("opts: #{inspect(opts)}")
     IO.puts("args: #{inspect(args)}")
 
+    {generator_opts, _other_opts} = Keyword.split(opts, [:template, :namespace])
+
     # to extract single options (ex: `@switches [name: :string]`)
     # `Keyword.get(opts, :name)`
     #
     # to extract array options (ex: `@switches [paths: [:string, :keep]]`)
     # `Keyword.get_values(:paths)`
-    paths = glob(args, opts)
-    IO.puts("paths: #{inspect(paths)}")
+    generators =
+      args
+      |> glob(opts)
+      |> IO.inspect(label: "paths")
+      |> Enum.reduce(%{}, fn path, generators ->
+        Design.parse(
+          File.read!(path),
+          1,
+          __ENV__,
+          generators,
+          path
+        ).generators
+      end)
+
+    cond do
+      opts[:dry_run] ->
+        generators
+        |> shell_cmds(generator_opts)
+        |> IO.puts()
+
+      opts[:output] ->
+        cmds = shell_cmds(generators, generator_opts)
+        File.write!(opts[:output], cmds)
+
+      true ->
+        generators
+        |> run_generators(generator_opts)
+    end
   end
 
   defp parse_opts!(args) do
@@ -105,5 +132,71 @@ defmodule Mix.Tasks.Sfc.Gen.Design do
       true ->
         {:ok, glob}
     end
+  end
+
+  defp shell_cmds(generators, opts) do
+    generators
+    |> Enum.map(fn {_name, generator} ->
+      to_shell_cmd(generator, opts)
+    end)
+    |> Enum.join("\n")
+  end
+
+  defp to_shell_cmd(%Design.Generator{} = generator, opts) do
+    slots =
+      generator.slots
+      |> Enum.map(fn {name, required} ->
+        "--slot #{name}#{required_slot_opt(required)}"
+      end)
+
+    props =
+      generator.props
+      |> Enum.map(fn {prop, type} ->
+        "#{prop}:#{type}"
+      end)
+
+    for_slot =
+      cond do
+        slot = generator.slot ->
+          ["--for-slot #{slot}"]
+
+        true ->
+          []
+      end
+
+    cmd =
+      ["mix sfc.gen.#{generator.generator} #{generator.name}"] ++
+        props ++
+        slots ++
+        for_slot ++
+        to_shell_opts(opts)
+
+    cmd
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(" ")
+  end
+
+  defp required_slot_opt(false), do: ""
+  defp required_slot_opt(true), do: ":required"
+
+  defp to_shell_opts(opts) do
+    opts
+    |> Enum.map(fn {opt, value} ->
+      case value do
+        true ->
+          "--#{opt}"
+
+        false ->
+          "--no-#{opt}"
+
+        _ ->
+          "--#{opt} #{value}"
+      end
+    end)
+  end
+
+  defp run_generators(generators, opts) do
+    IO.puts("run_generators...to be implemented. generators:\n#{inspect(generators)}")
+    IO.puts("opts: #{inspect(opts)}")
   end
 end

@@ -1,0 +1,9 @@
+<Card colour={string}>
+  <Card.Header slot="header" other="string">
+    Lorem Ipsum (some text not starting with optional makes the slot required)
+    <span>Howdy</span>
+    <Button>Click me</Button>
+  </Card.Header>
+  Lorem Ipsum
+  <Card.Footer slot="footer"></Card.Footer>
+</Card>
