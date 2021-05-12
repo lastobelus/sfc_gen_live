@@ -230,7 +230,35 @@ defmodule Surface.DesignTest do
     end
 
     test "it merges generators" do
-      flunk("implement merging generators")
+      sface = """
+      <Card title={string}>
+        Lorem Ipsum
+      </Card>
+
+
+      <Card colour={string}>
+        Lorem Ipsum
+        <Card.Footer slot="footer"></Card.Footer>
+      </Card>
+      """
+
+      output = Design.parse(sface, 1, __ENV__)
+
+      assert %DesignMeta{
+               generators: %{
+                 "card" => %Generator{
+                   generator: :component,
+                   name: "card",
+                   props: %{"title" => :string, "colour" => :string},
+                   slots: %{"default" => true, "footer" => false}
+                 },
+                 "card/footer" => %Generator{
+                   generator: :component,
+                   name: "card/footer",
+                   slot: "footer"
+                 }
+               }
+             } = output
     end
   end
 end

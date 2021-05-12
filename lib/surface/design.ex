@@ -41,7 +41,7 @@ defmodule Surface.Design do
 
     string
     |> Parser.parse()
-    # |> IO.inspect(label: "17 parser output")
+    # |> IO.inspect(label: "parser output")
     |> case do
       {:ok, nodes} ->
         nodes
@@ -64,9 +64,21 @@ defmodule Surface.Design do
   end
 
   defp add_generator(design_meta, new_generator) do
-    update_in(design_meta.generators[new_generator.name], fn _old_generator ->
-      new_generator
+    update_in(design_meta.generators[new_generator.name], fn old_generator ->
+      merge_generators(old_generator, new_generator)
     end)
+  end
+
+  defp merge_generators(nil, new_generator), do: new_generator
+
+  defp merge_generators(old_generator, new_generator) do
+    %Generator{
+      generator: new_generator.generator,
+      name: new_generator.name,
+      slot: new_generator.slot,
+      slots: Map.merge(old_generator.slots, new_generator.slots),
+      props: Map.merge(old_generator.props, new_generator.slots)
+    }
   end
 
   defp extract_generators_from_node(
