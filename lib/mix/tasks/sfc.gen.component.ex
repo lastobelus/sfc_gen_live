@@ -36,8 +36,6 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
       |> Keyword.put(:for_slot, for_slot)
       |> Keyword.put(:for_slot_comment, for_slot_comment)
 
-    IO.puts("assigns: #{inspect(assigns, pretty: true)}")
-
     paths = Mix.SfcGenLive.generator_paths()
 
     files = [

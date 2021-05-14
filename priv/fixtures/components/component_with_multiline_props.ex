@@ -1,4 +1,4 @@
-defmodule BlankComponent do
+defmodule ComponentWithMultilineProps do
   @moduledoc """
   stuff
   """

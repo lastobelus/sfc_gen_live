@@ -3,71 +3,90 @@ defmodule Mix.Surface.Component.Code do
   Document Mix.Surface.Component.Code here.
   """
 
-  def update_component_file(component_file, opts) do
+  def update_component_file!(component_file, opts) do
     component = File.read!(component_file)
 
-    {head, props_section, middle, slots_section, body} = split_component(component)
+    [head, props_section, middle, slots_section, body] = split_component(component)
+
+    # IO.puts("head: #{inspect(head)}")
+    # IO.puts("props_section: #{inspect(props_section)}")
+    # IO.puts("middle: #{inspect(middle)}")
+    # IO.puts("slots_section: #{inspect(slots_section)}")
+    # IO.puts("body: #{inspect(body)}")
 
     props_section =
       props_section
-      |> String.trim_trailing()
-      |> Enum.reduce(opts[:props], &add_prop/2)
-      |> add_blank_unless_empty?()
+      |> add_props(opts[:props])
 
     slots_section =
       slots_section
-      |> String.trim_trailing()
-      |> Enum.reduce(opts[:slots], &add_slot/2)
-      |> add_blank_unless_empty?()
+      |> add_slots(opts[:slots])
+
+    updated_code =
+      Enum.join([
+        head,
+        "\n\n",
+        props_section,
+        "\n\n",
+        middle,
+        slots_section,
+        "\n\n",
+        body,
+        "\n"
+      ])
+
+    # IO.puts("updated_code:\n#{updated_code}")
 
     File.write!(
       component_file,
-      Enum.join([
-        head,
-        props_section,
-        middle,
-        slots_section,
-        body
-      ])
+      updated_code
     )
   end
 
-  def prop_regex(prop_name), do: ~r/^\s*prop +#{prop_name}\b.*\n/m
-  def slot_regex(slot_name), do: ~r/^\s*slot +#{slot_name}\b.*\n/m
+  def add_props(code, props) do
+    Enum.reduce(props, code, &add_prop/2)
+  end
+
+  def add_slots(code, slots) do
+    Enum.reduce(slots, code, &add_slot/2)
+  end
+
+  def prop_regex(prop_name), do: ~r/^\s*prop +#{prop_name}\b.*$/m
+  def slot_regex(slot_name), do: ~r/^\s*slot +#{slot_name}\b.*$/m
 
   def add_slot(slot, slots) do
     if Regex.match?(slot_regex(slot.name), slots) do
-      Enum.join(
-        [
-          slots,
-          ~s|slot #{slot.name}#{Enum.join(slot.opts, ", ")}|
-        ],
-        "\n\n"
-      )
-    else
       slots
+    else
+      add_part(
+        slots,
+        ~s|  slot #{slot.name}#{Enum.join(slot.opts, ", ")}|
+      )
     end
   end
 
   def add_prop({name, prop}, props) do
     if Regex.match?(prop_regex(name), props) do
-      Enum.join(
-        [
-          props,
-          ~s|prop #{name}, #{prop.type}#{Enum.join(prop.opts, ", ")}|
-        ],
-        "\n\n"
-      )
-    else
       props
+    else
+      add_part(
+        props,
+        ~s|  prop #{name}, #{prop.type}#{Enum.join(prop.opts, ", ")}|
+      )
     end
   end
 
+  def add_part("", template), do: template
+  def add_part(section, template), do: section <> "\n\n" <> template
+
   def split_component(component) do
-    with [head, props, body] = split_at_props(component),
-         [middle, slots, body] = split_at_slots(body) do
-      {head, props, middle, slots, body}
-    end
+    [head, body] = split_head_body(component)
+    [head_rest, props, body] = split_at_props(body)
+    [middle, slots, body] = split_at_slots(body)
+
+    [head <> head_rest, props, middle, slots, body]
+    |> Enum.map(&String.trim_trailing/1)
+    |> Enum.map(fn s -> String.trim_leading(s, "\n") end)
   end
 
   def split_at_defmodule(component) do
@@ -94,6 +113,13 @@ defmodule Mix.Surface.Component.Code do
       ~r/^\s*(?:use|alias|import) +.*\n/m,
       true
     )
+  end
+
+  def split_head_body(component) do
+    [mod, body] = split_at_defmodule(component)
+    [moddoc, body] = split_at_moduledoc(body)
+    [imports, body] = split_at_imports(body)
+    [mod <> moddoc <> imports, body]
   end
 
   def split_at_props(component), do: split_at_section(component, "prop")
@@ -162,7 +188,6 @@ defmodule Mix.Surface.Component.Code do
     indices =
       regex
       |> Regex.scan(component, return: :index)
-      |> IO.inspect(label: "indices")
 
     case indices do
       [] ->
@@ -202,7 +227,7 @@ defmodule Mix.Surface.Component.Code do
   defp add_blank_unless_empty?(str) do
     cond do
       blank?(str) -> str
-      true -> str <> "\n\n"
+      true -> str <> "\n"
     end
   end
 end
