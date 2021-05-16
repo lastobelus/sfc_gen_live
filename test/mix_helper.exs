@@ -48,11 +48,11 @@ defmodule MixHelper do
     end)
   end
 
-  def in_tmp_phx_project(test, func) do
+  def in_tmp_phx_project(test, func, deps \\ [:phoenix]) do
     app = @test_app_name
 
     in_tmp_project(test, fn ->
-      File.write!("mix.exs", mixfile_contents(app, true))
+      File.write!("mix.exs", mixfile_contents(app, deps))
 
       func.()
     end)
@@ -69,8 +69,14 @@ defmodule MixHelper do
   end
 
   def in_tmp_project(which, function) do
+    in_tmp_project(which, [], function)
+  end
+
+  def in_tmp_project(which, deps, function) do
     conf_before = Application.get_env(@app_name, :generators) || []
     path = Path.join([tmp_path(), random_string(10), to_string(which)])
+    project_deps_path = Mix.Project.deps_path()
+    project_build_path = Mix.Project.build_path()
 
     try do
       File.rm_rf!(path)
@@ -78,9 +84,29 @@ defmodule MixHelper do
 
       File.cd!(path, fn ->
         File.mkdir_p!("lib")
+        File.mkdir_p!("_build/test/lib")
+        File.mkdir_p!("deps")
         File.mkdir_p!("test")
-        File.write!("mix.exs", mixfile_contents(@test_app_name, false))
+        File.write!("mix.exs", mixfile_contents(@test_app_name, deps))
         File.write!("test/test_helper.exs", "ExUnit.start()\n")
+
+        # can't copy mix.lock because I think the hashes include the file creation date,
+        # but copying all deps & build takes less (1/2) time, even though it recompiles
+        # Enum.each(deps, fn dep -> copy_dep(dep, project_deps_path, project_build_path) end)
+
+        deps_path = Mix.Project.deps_path()
+        build_path = Mix.Project.build_path()
+
+        File.cp_r!(
+          project_build_path,
+          build_path
+        )
+
+        File.cp_r!(
+          project_deps_path,
+          deps_path
+        )
+
         function.()
       end)
     after
@@ -160,20 +186,7 @@ defmodule MixHelper do
     end
   end
 
-  def mixfile_contents(app, phoenix \\ false) do
-    deps =
-      case phoenix do
-        true ->
-          """
-          [
-            {:phoenix, "~> 1.5.7"}
-          ]
-          """
-
-        false ->
-          "[]"
-      end
-
+  def mixfile_contents(app, deps \\ []) do
     """
     defmodule #{Macro.camelize(to_string(app))}.Mixfile do
       use Mix.Project
@@ -187,10 +200,53 @@ defmodule MixHelper do
       end
 
       defp deps do
-        #{deps}
+        #{inspect(Enum.map(deps, &get_dep/1))}
       end
     end
     """
+  end
+
+  def get_dep(dep) when is_tuple(dep), do: dep
+
+  def get_dep(dep) when is_atom(dep) do
+    {dep, Keyword.get(Mix.Project.config()[:deps], dep)}
+  end
+
+  def copy_dep(dep, project_deps_path, project_build_path) do
+    deps_path = Mix.Project.deps_path()
+    build_path = Mix.Project.build_path()
+
+    dep =
+      cond do
+        is_tuple(dep) ->
+          dep
+          |> Tuple.to_list()
+          |> List.first()
+          |> Kernel.to_string()
+
+        true ->
+          to_string(dep)
+      end
+
+    IO.puts("project_deps_path: #{inspect(project_deps_path)}")
+    IO.puts("dep: #{inspect(dep)}")
+    proj_dep = Path.join(project_deps_path, dep)
+    proj_build = Path.join([project_build_path, "lib", dep])
+
+    test_dep = Path.join(deps_path, dep)
+    test_build = Path.join([build_path, "lib", dep])
+
+    IO.puts("copying \n`#{proj_dep}`\nto\n`#{test_dep}` >> #{File.exists?(proj_dep)}")
+
+    if File.exists?(proj_dep) do
+      File.cp_r!(proj_dep, test_dep)
+    end
+
+    IO.puts("copying \n`#{proj_build}`\nto\n`#{test_build}` >> #{File.exists?(proj_build)}")
+
+    if File.exists?(proj_build) do
+      File.cp_r!(proj_build, test_build)
+    end
   end
 
   def umbrella_mixfile_contents do
@@ -220,6 +276,20 @@ defmodule MixHelper do
     end
   end
 
+  def run_mix_test(test) do
+    IO.puts("compiling tmp_project for `#{test}`...")
+    {output, exit_status} = System.cmd("mix", ~w(test), stderr_to_stdout: true)
+    [deps_build_output | test_output] = String.split(output, "==> sfc_gen_live_test\nCompiling")
+
+    cond do
+      length(test_output) < 1 ->
+        {:error, deps_build_output}
+
+      true ->
+        {:ok, Enum.join(test_output)}
+    end
+  end
+
   def inspect_app_dir(also \\ nil) do
     IO.puts("----------------------------------------------")
     IO.puts("File.cwd!(): #{inspect(File.cwd!())}")
@@ -228,7 +298,8 @@ defmodule MixHelper do
     if also do
       IO.puts("File.ls!(#{also}): #{inspect(File.ls!(also))}")
     else
-      System.cmd("tree", [])
+      {tree, _x} = System.cmd("tree", [])
+      IO.puts(tree)
     end
 
     # hi

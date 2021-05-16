@@ -4,6 +4,8 @@ defmodule Mix.Tasks.Sfc.Gen.ComponentTest do
   @moduledoc false
   use ExUnit.Case
   import MixHelper
+  import ExUnit.CaptureIO
+
   alias Mix.Tasks.Sfc.Gen
 
   setup do
@@ -71,6 +73,35 @@ defmodule Mix.Tasks.Sfc.Gen.ComponentTest do
         assert file =~ "<slot/>"
         assert file =~ ~r/<!--[^>]* typed slotable for slot `header`/
       end)
+    end)
+  end
+
+  @tag :slow
+  test "generated components compile and test passes", config do
+    in_tmp_project(config.test, [:surface], fn ->
+      # Gen.Component.run(~w(table/head size:string:required:values[small|medium|large]))
+      Gen.Component.run(~w(
+          table/head name:string:required
+          columns:integer
+          size:string:values[large,medium,small]:default[medium]
+          --slot default:required
+          --slot footer
+          --slot panel[columns]
+          --template
+        ))
+
+      System.cmd("mix", ~w(deps.get), stderr_to_stdout: true)
+      # inspect_app_dir
+      # head_component = File.read!("lib/sfc_gen_live_web/components/table/head.ex")
+      # head_template = File.read!("lib/sfc_gen_live_web/components/table/head.sface")
+
+      # IO.puts("head_component: \n#{head_component}\n\n")
+      # IO.puts("head_template: \n#{head_template}\n\n")
+
+      {mix_test_status, output} = run_mix_test(config.test)
+      assert mix_test_status == :ok, "`mix test` failed: #{output}"
+      # assert output =~ ~S/TBD/
+      # assert output =~ "TBD"
     end)
   end
 end
