@@ -23,11 +23,11 @@ defmodule Surface.Design do
           }
   end
 
-  def parse(string, line_offset, caller, generators \\ %{}, file \\ "nofile", opts \\ [])
+  def parse(string, line, caller, generators \\ %{}, file \\ "nofile", opts \\ [])
 
-  def parse(string, line_offset, caller, generators, file, opts) do
+  def parse(string, line, caller, generators, file, opts) do
     compile_meta = %CompileMeta{
-      line_offset: line_offset,
+      line: line,
       file: file,
       caller: caller,
       checks: opts[:checks] || []
@@ -40,15 +40,8 @@ defmodule Surface.Design do
     }
 
     string
-    |> Parser.parse()
+    |> Parser.parse!()
     # |> IO.inspect(label: "parser output")
-    |> case do
-      {:ok, nodes} ->
-        nodes
-
-      {:error, message, line} ->
-        raise %ParseError{line: line + line_offset - 1, file: file, message: message}
-    end
     |> to_generators(design_meta)
 
     # |> IO.inspect(label: "output")
