@@ -46,7 +46,7 @@ defmodule Mix.Tasks.Sfc.Gen.InitTest do
 
       assert_file("lib/sfc_gen_live_web/components/card.ex", fn file ->
         assert file =~ "defmodule SfcGenLiveWeb.Components.Card do"
-        assert file =~ ~S(<div class={{ @class }}>)
+        assert file =~ ~S(<div class={ @class }>)
       end)
 
       refute_file("lib/sfc_gen_live_web/components/card.sface")
@@ -62,11 +62,11 @@ defmodule Mix.Tasks.Sfc.Gen.InitTest do
 
       assert_file("lib/sfc_gen_live_web/components/card.ex", fn file ->
         assert file =~ "defmodule SfcGenLiveWeb.Components.Card do"
-        refute file =~ ~S(<div class={{ @class }}>)
+        refute file =~ ~S(<div class={ @class }>)
       end)
 
       assert_file("lib/sfc_gen_live_web/components/card.sface", fn file ->
-        assert file =~ ~S(<div class={{ @class }}>)
+        assert file =~ ~S(<div class={ @class }>)
       end)
     end)
   end

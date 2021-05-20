@@ -1,22 +1,22 @@
 <h1>Show <%= schema.human_singular %></h1>
 
 <Modal 
-  :if={{@live_action in [:edit]}}
+  :if={@live_action in [:edit]}
   id="modal"
-  title={{@page_title}}
-  return_to={{ Routes.<%= schema.route_helper %>_show_path(@socket, :show, @<%= schema.singular %>) }}>
+  title={@page_title}
+  return_to={ Routes.<%= schema.route_helper %>_show_path(@socket, :show, @<%= schema.singular %>) }>
   <FormComponent
-    id={{@<%= schema.singular %>.id || :new}}
-    action={{@live_action}}
-    <%= schema.singular %>={{@<%= schema.singular %>}}
-    return_to={{ Routes.<%= schema.route_helper %>_show_path(@socket, :show, @<%= schema.singular %>) }}/>
+    id={@<%= schema.singular %>.id || :new}
+    action={@live_action}
+    <%= schema.singular %>={@<%= schema.singular %>}
+    return_to={ Routes.<%= schema.route_helper %>_show_path(@socket, :show, @<%= schema.singular %>) }/>
 </Modal>
 
 <ul>
 <%= for {k, _} <- schema.attrs do %>
   <li>
     <strong><%= Phoenix.Naming.humanize(Atom.to_string(k)) %>:</strong>
-    {{ @<%= schema.singular %>.<%= k %> }}
+    { @<%= schema.singular %>.<%= k %> }
   </li>
 <% end %>
 </ul>
@@ -24,12 +24,12 @@
 <span>
   <LivePatch
     label="Edit"
-    to={{ Routes.<%= schema.route_helper %>_show_path(@socket, :edit, @<%= schema.singular %>) }}
+    to={ Routes.<%= schema.route_helper %>_show_path(@socket, :edit, @<%= schema.singular %>) }
     class="button"/>
 </span>
 |
 <span>
   <LiveRedirect
     label="Back"
-    to={{ Routes.<%= schema.route_helper %>_index_path(@socket, :index) }}/>
+    to={ Routes.<%= schema.route_helper %>_index_path(@socket, :index) }/>
 </span>

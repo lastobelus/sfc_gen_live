@@ -5,6 +5,7 @@ defmodule Mix.SfcGenLive do
   @cli_theme_fg 15
 
   alias Mix.Surface.Component.Code
+
   @doc """
   The paths to look for template files for generators.
 
@@ -41,11 +42,16 @@ defmodule Mix.SfcGenLive do
     |> String.split("/", trim: true)
   end
 
-  @spec web_module_path(atom) :: binary
   def web_module_path(ctx_app) do
     web_prefix = Mix.Phoenix.web_path(ctx_app)
     [lib_prefix, web_dir] = Path.split(web_prefix)
     Path.join(lib_prefix, "#{web_dir}.ex")
+  end
+
+  def web_test_path(ctx_app) do
+    web_prefix = Mix.Phoenix.web_path(ctx_app)
+    [_lib_prefix, web_dir] = Path.split(web_prefix)
+    Path.join("test", web_dir)
   end
 
   def inflect(namespace_parts, name, context_app \\ nil)
@@ -69,6 +75,11 @@ defmodule Mix.SfcGenLive do
     alias = Module.concat([Module.split(module) |> List.last()])
     human = Enum.map(name_parts, &Phoenix.Naming.humanize/1) |> Enum.join(" ")
 
+    test_root = web_test_path(context_app)
+    test_dir = Path.join([test_root] ++ namespace_parts ++ Enum.slice(name_parts, 0..-2))
+    test_filename = List.last(name_parts) <> "_test.exs"
+    test_path = Path.join(test_dir, test_filename)
+
     [
       alias: alias,
       human: human,
@@ -77,8 +88,11 @@ defmodule Mix.SfcGenLive do
       namespace_module: namespace_module,
       module: module,
       path: path,
-      web_path: web_path
+      web_path: web_path,
+      test_root: test_root,
+      test_path: test_path
     ]
+    |> IO.inspect(label: "inflect")
   end
 
   @doc """
@@ -295,5 +309,4 @@ defmodule Mix.SfcGenLive do
 
   defp to_app_source(app, source_dir) when is_atom(app),
     do: Application.app_dir(app, source_dir)
-
 end

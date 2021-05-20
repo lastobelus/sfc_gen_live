@@ -221,10 +221,10 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
         {key, "NumberInput", ""}
 
       {key, :float} ->
-        {key, "NumberInput", ~s( opts={{ step: "any" }})}
+        {key, "NumberInput", ~s( opts={ step: "any" })}
 
       {key, :decimal} ->
-        {key, "NumberInput", ~s( opts={{step: "any" }})}
+        {key, "NumberInput", ~s( opts={step: "any" })}
 
       {key, :boolean} ->
         {key, "Checkbox", ""}
@@ -254,14 +254,14 @@ defmodule Mix.Tasks.Sfc.Gen.Live do
         {key, "DateTimeSelect", ""}
 
       {key, {:array, :integer}} ->
-        {key, "MultipleSelect", ~s( options={{ ["1": 1, "2": 2] }}), ""}
+        {key, "MultipleSelect", ~s( options={ ["1": 1, "2": 2] }), ""}
 
       {key, {:array, _}} ->
-        {key, "MultipleSelect", ~s( options={{ ["Option 1": "option1", "Option 2": "option2"] }})}
+        {key, "MultipleSelect", ~s( options={ ["Option 1": "option1", "Option 2": "option2"] })}
 
       {key, {:enum, _}} ->
         {key, "Select",
-         ~s| options={{ Ecto.Enum.values(#{inspect(schema.module)}, #{inspect(key)}) }} opts={{ prompt: "Choose a value" }} />|}
+         ~s| options={ Ecto.Enum.values(#{inspect(schema.module)}, #{inspect(key)}) } opts={ prompt: "Choose a value" } />|}
 
       {key, _} ->
         {key, "TextInput", ""}

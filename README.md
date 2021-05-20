@@ -1,3 +1,8 @@
+# WIP
+
+  [ ] - sfc.gen.design
+  [ ] - refactor to [surface v0.5 syntax](https://gist.github.com/msaraiva/dd40ab537e1508f1af2954a19faa2d54#dynamic-attributesproperties)
+
 # sfc.gen.live
 
 `sfc.gen.live` is a translation of `phx.gen.live` to [Surface](https://surface-ui.org).

@@ -48,12 +48,11 @@ defmodule Mix.Tasks.Sfc.Gen.LiveTest do
                       secret:uuid:redact announcement_date:date
                       weight:float user_id:references:users))
 
-      IO.puts "----------------------------------------------"
+      IO.puts("----------------------------------------------")
       IO.puts("File.cwd!(): #{inspect(File.cwd!())}")
       IO.puts("File.ls!(): #{inspect(File.ls!())}")
       IO.puts("lib/sfc_gen_live_web.ex: \n#{File.read!("lib/sfc_gen_live_web.ex")}")
-      IO.puts "----------------------------------------------"
-
+      IO.puts("----------------------------------------------")
 
       assert_file("lib/sfc_gen_live/blog/post.ex")
       assert_file("lib/sfc_gen_live/blog.ex")
@@ -94,15 +93,15 @@ defmodule Mix.Tasks.Sfc.Gen.LiveTest do
       assert_file("lib/sfc_gen_live_web/live/post_live/form_component.sface", fn file ->
         assert file =~ ~s(<TextInput/>)
         assert file =~ ~s(<NumberInput/>)
-        assert file =~ ~s(<NumberInput opts={{step: "any" }}/>)
+        assert file =~ ~s(<NumberInput opts={step: "any" }/>)
 
         assert file =~
-                 ~s(<MultipleSelect options={{ ["Option 1": "option1", "Option 2": "option2"] }}/>)
+                 ~s(<MultipleSelect options={ ["Option 1": "option1", "Option 2": "option2"] }/>)
 
         assert file =~ ~s(<Checkbox/>)
 
         assert file =~
-                 ~s|<Select options={{ Ecto.Enum.values(SfcGenLive.Blog.Post, :status) }} opts={{ prompt: "Choose a value" }} />|
+                 ~s|<Select options={ Ecto.Enum.values(SfcGenLive.Blog.Post, :status) } opts={ prompt: "Choose a value" } />|
 
         assert file =~ ~s(<DateTimeSelect/>)
         assert file =~ ~s(<DateSelect/>)
@@ -369,7 +368,7 @@ defmodule Mix.Tasks.Sfc.Gen.LiveTest do
       assert_file("lib/sfc_gen_live_web/components/modal.ex")
 
       assert_file("lib/sfc_gen_live_web/live/series_live/index.sface", fn file ->
-        assert file =~ ":for={{ series <- @series_collection }}"
+        assert file =~ ":for={ series <- @series_collection }"
       end)
 
       assert_file("lib/sfc_gen_live_web/live/series_live/show.sface")

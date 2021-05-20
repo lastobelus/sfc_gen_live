@@ -1,15 +1,15 @@
 <h1>Listing <%= schema.human_plural %></h1>
 
 <Modal 
-  :if={{@live_action in [:new, :edit]}}
+  :if={@live_action in [:new, :edit]}
   id="modal"
-  title={{@page_title}}
-  return_to={{ Routes.<%= schema.route_helper %>_index_path(@socket, :index) }}>
+  title={@page_title}
+  return_to={ Routes.<%= schema.route_helper %>_index_path(@socket, :index) }>
   <FormComponent
-    id={{@<%= schema.singular %>.id || :new}}
-    action={{@live_action}}
-    <%= schema.singular %>={{@<%= schema.singular %>}}
-    return_to={{ Routes.<%= schema.route_helper %>_index_path(@socket, :index) }}/>
+    id={@<%= schema.singular %>.id || :new}
+    action={@live_action}
+    <%= schema.singular %>={@<%= schema.singular %>}
+    return_to={ Routes.<%= schema.route_helper %>_index_path(@socket, :index) }/>
 </Modal>
 
 <table>
@@ -22,25 +22,25 @@
   </thead>
   <tbody id="<%= schema.plural %>">
     <tr
-      :for={{ <%= schema.singular %> <- @<%= schema.collection %> }}
-      id="<%= schema.singular %>-{{<%= schema.singular %>.id}}">
-<%= for {k, _} <- schema.attrs do %>        <td>{{ <%= schema.singular %>.<%= k %> }}</td>
+      :for={ <%= schema.singular %> <- @<%= schema.collection %> }
+      id="<%= schema.singular %>-{<%= schema.singular %>.id}">
+<%= for {k, _} <- schema.attrs do %>        <td>{ <%= schema.singular %>.<%= k %> }</td>
 <% end %>
       <td>
         <span>
-          <LiveRedirect to={{ Routes.<%= schema.route_helper %>_show_path(@socket, :show, <%= schema.singular %>) }}>
+          <LiveRedirect to={ Routes.<%= schema.route_helper %>_show_path(@socket, :show, <%= schema.singular %>) }>
             Show
           </LiveRedirect>
         </span>
         |
         <span>
-          <LivePatch to={{ Routes.<%= schema.route_helper %>_index_path(@socket, :edit, <%= schema.singular %>) }}>
+          <LivePatch to={ Routes.<%= schema.route_helper %>_index_path(@socket, :edit, <%= schema.singular %>) }>
             Edit
           </LivePatch>
         </span>
         |
         <span>
-          <Link label="Delete" to="#" click="delete" opts={{ "phx-value-id": <%= schema.singular %>.id, data: [confirm: "Are you sure?"] }}/>
+          <Link label="Delete" to="#" click="delete" opts={ "phx-value-id": <%= schema.singular %>.id, data: [confirm: "Are you sure?"] }/>
         </span>
       </td>
     </tr>
@@ -48,7 +48,7 @@
 </table>
 
 <span>
-  <LivePatch to={{ Routes.<%= schema.route_helper %>_index_path(@socket, :new) }}>
+  <LivePatch to={ Routes.<%= schema.route_helper %>_index_path(@socket, :new) }>
     New <%= schema.human_singular %>
   </LivePatch>
 </span>

@@ -13,9 +13,11 @@ defmodule <%= inspect module %> do
 
   def render(assigns) do
     ~H"""
-    <!-- <%= human %>  <%= for_slot_comment %>--><%= for slot <- slots do %>
+    <div>
+      <!-- <%= human %>  <%= for_slot_comment %>--><%= for slot <- slots do %>
 
-    <slot<%= slot.attr_name %><%= slot.attr_props %>/><% end %>
+      <#slot<%= slot.attr_name %><%= slot.attr_props %>/><% end %>
+    </div>
     """
   end
 <% end %>end

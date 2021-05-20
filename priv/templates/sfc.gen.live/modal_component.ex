@@ -18,7 +18,7 @@ defmodule <%= inspect context.web_module %>.Components.Modal do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={{@id}} class="phx-modal"
+    <div id={@id} class="phx-modal"
       capture-click="close"
       window-keydown="close"
       key="escape"
@@ -26,13 +26,13 @@ defmodule <%= inspect context.web_module %>.Components.Modal do
     >
 
       <div class="phx-modal-content">
-        <LivePatch :if={{@show_close}} to={{@return_to}} class="phx-modal-close">
+        <LivePatch :if={@show_close} to={@return_to} class="phx-modal-close">
           &times
         </LivePatch>
-        <h2 :if={{@title}} class="text-sm font-display">
-          {{@title}}
+        <h2 :if={@title} class="text-sm font-display">
+          {@title}
         </h2>
-        <slot/>
+        <#slot/>
       </div>
     </div>
     """

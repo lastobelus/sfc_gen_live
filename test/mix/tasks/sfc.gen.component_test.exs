@@ -4,7 +4,6 @@ defmodule Mix.Tasks.Sfc.Gen.ComponentTest do
   @moduledoc false
   use ExUnit.Case
   import MixHelper
-  import ExUnit.CaptureIO
 
   alias Mix.Tasks.Sfc.Gen
 
@@ -50,9 +49,13 @@ defmodule Mix.Tasks.Sfc.Gen.ComponentTest do
         assert file =~ "slot footer"
         assert file =~ "slot panel, props: [:columns]"
 
-        assert file =~ "<slot/>"
-        assert file =~ "<slot name=\"footer\"/>"
-        assert file =~ "<slot name=\"panel\" :props={{columns: @columns}}/>"
+        assert file =~ "<#slot/>"
+        assert file =~ "<#slot name=\"footer\"/>"
+        assert file =~ "<#slot name=\"panel\" :props={ columns: @columns }/>"
+      end)
+
+      assert_file("test/sfc_gen_live_web/components/table/head_test.exs", fn file ->
+        IO.puts("test file: #{file}")
       end)
     end)
   end
@@ -70,7 +73,7 @@ defmodule Mix.Tasks.Sfc.Gen.ComponentTest do
         assert file =~ "defmodule SfcGenLiveWeb.Components.Card.Header"
         assert file =~ ~s(use Surface.Component, slot: "header")
         assert file =~ "slot default, required: true"
-        assert file =~ "<slot/>"
+        assert file =~ "<#slot/>"
         assert file =~ ~r/<!--[^>]* typed slotable for slot `header`/
       end)
     end)
@@ -100,7 +103,8 @@ defmodule Mix.Tasks.Sfc.Gen.ComponentTest do
 
       {mix_test_status, output} = run_mix_test(config.test)
       assert mix_test_status == :ok, "`mix test` failed: #{output}"
-      # assert output =~ ~S/TBD/
+      IO.puts(output)
+      assert output =~ ~S/TBD/
       # assert output =~ "TBD"
     end)
   end

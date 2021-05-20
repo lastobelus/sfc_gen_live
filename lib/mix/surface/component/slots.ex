@@ -70,7 +70,7 @@ defmodule Mix.Surface.Component.Slots do
 
     {
       ["props: [#{Enum.join(props_opts, ", ")}]"],
-      " :props={{#{Enum.join(props_attrs, ", ")}}}"
+      " :props={ #{Enum.join(props_attrs, ", ")} }"
     }
   end
 

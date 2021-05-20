@@ -28,19 +28,19 @@ defmodule <%= inspect module %> do
 
   def render(assigns) do
     ~H"""
-    <div class={{ @class }}>
-      <header class={{ @header_class }}>
+    <div class={ @class }>
+      <header class={ @header_class }>
         <p class="card-header-title">
-          <slot name="header"/>
+          <#slot name="header"/>
         </p>
       </header>
       <div class="card-content">
         <div class="content">
-          <slot/>
+          <#slot/>
         </div>
       </div>
-      <footer class={{ @footer_class}}>
-        <slot name="footer"/>
+      <footer class={ @footer_class }>
+        <#slot name="footer"/>
       </footer>
     </div>
     """

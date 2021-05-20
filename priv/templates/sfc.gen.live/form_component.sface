@@ -1,7 +1,7 @@
-<Form for={{@changeset}}
+<Form for={@changeset}
   change="validate"
   submit="save"
-  opts={{ id: "<%= schema.singular %>-form" }}
+  opts={ id: "<%= schema.singular %>-form" }
 >
 <%= for {key, input, options} <- inputs, input do %>
   <Field name="<%= key %>">
@@ -12,6 +12,6 @@
 <% end %>
 
 <div>  
-  <Submit opts={{ phx_disable_with: "Saving…" }}>Save</Submit>
+  <Submit opts={ phx_disable_with: "Saving…" }>Save</Submit>
 </div>
 </Form>

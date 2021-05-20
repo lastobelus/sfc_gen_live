@@ -84,28 +84,32 @@ defmodule MixHelper do
 
       File.cd!(path, fn ->
         File.mkdir_p!("lib")
-        File.mkdir_p!("_build/test/lib")
-        File.mkdir_p!("deps")
+        File.mkdir_p!("_build")
         File.mkdir_p!("test")
         File.write!("mix.exs", mixfile_contents(@test_app_name, deps))
         File.write!("test/test_helper.exs", "ExUnit.start()\n")
 
-        # can't copy mix.lock because I think the hashes include the file creation date,
-        # but copying all deps & build takes less (1/2) time, even though it recompiles
-        # Enum.each(deps, fn dep -> copy_dep(dep, project_deps_path, project_build_path) end)
+        unless Enum.empty?(deps) do
+          # can't copy mix.lock because I think the hashes include the file creation date,
+          # but copying all deps & build from the parent project takes less (1/2) time when
+          # the test requires any of them, even though it recompiles.
+          # Enum.each(deps, fn dep -> copy_dep(dep, project_deps_path, project_build_path) end)
+          # I also tried copying deps/builds with `System.cmd("cp -a") but still get a
+          # dependencies out of date error with copied mix file and no "mix deps.get"
 
-        deps_path = Mix.Project.deps_path()
-        build_path = Mix.Project.build_path()
+          deps_path = Mix.Project.deps_path()
+          build_path = Mix.Project.build_path()
 
-        File.cp_r!(
-          project_build_path,
-          build_path
-        )
+          File.cp_r!(
+            project_build_path,
+            build_path
+          )
 
-        File.cp_r!(
-          project_deps_path,
-          deps_path
-        )
+          File.cp_r!(
+            project_deps_path,
+            deps_path
+          )
+        end
 
         function.()
       end)
@@ -276,10 +280,13 @@ defmodule MixHelper do
     end
   end
 
-  def run_mix_test(test) do
-    IO.puts("compiling tmp_project for `#{test}`...")
-    {output, exit_status} = System.cmd("mix", ~w(test), stderr_to_stdout: true)
-    [deps_build_output | test_output] = String.split(output, "==> sfc_gen_live_test\nCompiling")
+  def run_mix_test(test, opts \\ []) do
+    if opts[:verbose] do
+      IO.puts("compiling tmp_project for `#{test}`...")
+    end
+
+    {output, _exit_status} = System.cmd("mix", ~w(test), stderr_to_stdout: true)
+    [deps_build_output | test_output] = String.split(output, "==> #{@test_app_name}\nCompiling")
 
     cond do
       length(test_output) < 1 ->
