@@ -55,7 +55,8 @@ defmodule Mix.Tasks.Sfc.Gen.ComponentTest do
       end)
 
       assert_file("test/sfc_gen_live_web/components/table/head_test.exs", fn file ->
-        IO.puts("test file: #{file}")
+        # IO.puts("test file: #{file}")
+        assert file =~ ~s(test "renders Table Head component" do)
       end)
     end)
   end

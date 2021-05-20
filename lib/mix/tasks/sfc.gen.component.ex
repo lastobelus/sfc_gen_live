@@ -35,7 +35,8 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
       |> Keyword.put(:slots, slots)
       |> Keyword.put(:for_slot, for_slot)
       |> Keyword.put(:for_slot_comment, for_slot_comment)
-      |> IO.inspect(label: "assigns")
+
+    # |> IO.inspect(label: "assigns")
 
     paths = Mix.SfcGenLive.generator_paths()
 
@@ -43,8 +44,6 @@ defmodule Mix.Tasks.Sfc.Gen.Component do
       {:eex, "component.ex", Path.join(assigns[:web_path], "#{assigns[:path]}.ex")},
       {:eex, "component_test.ex", assigns[:test_path]}
     ]
-
-    IO.puts("files: #{inspect(files)}")
 
     template_files = [
       {:eex, "component.sface", Path.join(assigns[:web_path], "#{assigns[:path]}.sface")}

@@ -92,7 +92,8 @@ defmodule Mix.SfcGenLive do
       test_root: test_root,
       test_path: test_path
     ]
-    |> IO.inspect(label: "inflect")
+
+    # |> IO.inspect(label: "inflect")
   end
 
   @doc """
